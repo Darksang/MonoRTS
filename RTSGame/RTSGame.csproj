@@ -73,6 +73,7 @@
     <Compile Include="Source\MainGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Movement\SteeringType.cs" />
     <Compile Include="Source\Sprite.cs" />
     <Compile Include="Source\Transform.cs" />
     <Compile Include="Source\Unit.cs" />

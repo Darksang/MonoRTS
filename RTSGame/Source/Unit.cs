@@ -15,7 +15,7 @@ namespace RTSGame {
         public Body Body { get; set; }
 
         // Holds all movement behaviours of the Unit
-        public List<SteeringBehaviour> MovementBehaviours { get; private set; }
+        public Dictionary<SteeringType, SteeringBehaviour> Behaviours { get; private set; }
 
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
@@ -26,7 +26,7 @@ namespace RTSGame {
             this.Sprite = Sprite;
             Body = new Body();
 
-            MovementBehaviours = new List<SteeringBehaviour>();
+            Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
             Selected = false;
         }
@@ -37,7 +37,7 @@ namespace RTSGame {
             this.Sprite = Sprite;
             Body = new Body();
 
-            MovementBehaviours = new List<SteeringBehaviour>();
+            Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
             Selected = false;
         }
@@ -64,7 +64,7 @@ namespace RTSGame {
             Steering Result = new Steering();
 
             // Accumulate all accelerations
-            foreach (SteeringBehaviour B in MovementBehaviours) {
+            foreach (SteeringBehaviour B in Behaviours.Values) {
                 Steering S = B.GetSteering(this);
 
                 Result.Linear += B.Weight * S.Linear;
@@ -76,17 +76,50 @@ namespace RTSGame {
             return Result;
         }
 
-        // Sets the target for this Unit
-        public void SetUnitTarget(Unit Unit) {
-            // TODO: Set target individually for each Behaviour
-            foreach (SteeringBehaviour B in MovementBehaviours)
-                B.SetTarget(Unit);
+        // Adds a specific Steering if it's not already contained
+        public void AddSteering(SteeringType Type) {
+            if (!Behaviours.ContainsKey(Type)) {
+                switch(Type) {
+                    case SteeringType.Align:
+                        Behaviours.Add(Type, new Align());
+                        break;
+
+                    case SteeringType.AntiAlign:
+                        Behaviours.Add(Type, new AntiAlign());
+                        break;
+
+                    case SteeringType.Arrive:
+                        Behaviours.Add(Type, new Arrive());
+                        break;
+
+                    case SteeringType.Flee:
+                        Behaviours.Add(Type, new Flee());
+                        break;
+
+                    case SteeringType.Seek:
+                        Behaviours.Add(Type, new Seek());
+                        break;
+
+                    case SteeringType.VelocityMatching:
+                        Behaviours.Add(Type, new VelocityMatching());
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
-        // TODO: Change SteeringBehaviour for an Enum, then create adecuate Steering inside
-        public void AddSteering(SteeringBehaviour Behaviour) {
-            // TODO: Check if it already exists
-            MovementBehaviours.Add(Behaviour);
+        // Removes a specific Steering
+        public void RemoveSteering(SteeringType Type) {
+            if (Behaviours.ContainsKey(Type))
+                Behaviours.Remove(Type);
+        }
+
+        // Sets the target for a specific Steering
+        public void SetSteeringTarget(SteeringType Type, Unit Target) {
+            if (Behaviours.ContainsKey(Type))
+                Behaviours[Type].SetTarget(Target);
         }
 
         public void Draw(SpriteBatch Batch) {

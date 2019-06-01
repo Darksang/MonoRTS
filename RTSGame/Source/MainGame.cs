@@ -81,11 +81,11 @@ namespace RTSGame {
             Target = new Unit("Target Unit", S);
             Target.Transform.Position = new Vector2(500f, 500f);
 
-            Arrive Arrive = new Arrive();
-            TestUnit.AddSteering(Arrive);
+            // Add arrive steering
+            TestUnit.AddSteering(SteeringType.Arrive);
 
-            Flee Flee = new Flee();
-            Target.AddSteering(Flee);
+            // Add flee steering
+            Target.AddSteering(SteeringType.Flee);
 
             Units.Add(TestUnit);
             Units.Add(Target);
@@ -122,10 +122,10 @@ namespace RTSGame {
             ImGuiRenderer.BeforeLayout(GameTime);
 
             if (KeyState.IsKeyDown(Keys.Q))
-                TestUnit.SetUnitTarget(Target);
+                TestUnit.SetSteeringTarget(SteeringType.Arrive, Target);
 
             if (KeyState.IsKeyDown(Keys.W))
-                Target.SetUnitTarget(TestUnit);
+                Target.SetSteeringTarget(SteeringType.Flee, TestUnit);
 
             if (KeyState.IsKeyDown(Keys.R) && PreviousKeyboardState.IsKeyUp(Keys.R))
                 TestUnit.Selected = !TestUnit.Selected;
