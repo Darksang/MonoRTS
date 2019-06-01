@@ -63,6 +63,7 @@
     <Compile Include="Source\Movement\BasicSteerings\Flee.cs" />
     <Compile Include="Source\Movement\BasicSteerings\Seek.cs" />
     <Compile Include="Source\Movement\BasicSteerings\VelocityMatching.cs" />
+    <Compile Include="Source\Movement\DelegateSteerings\Evade.cs" />
     <Compile Include="Source\Movement\DelegateSteerings\Face.cs" />
     <Compile Include="Source\Movement\DelegateSteerings\PathFollowing.cs" />
     <Compile Include="Source\Movement\DelegateSteerings\Pursue.cs" />
