@@ -83,6 +83,7 @@ namespace RTSGame {
 
             // Add arrive steering
             TestUnit.AddSteering(SteeringType.Arrive);
+            TestUnit.AddSteering(SteeringType.Pursue);
 
             // Add flee steering
             Target.AddSteering(SteeringType.Flee);
@@ -123,6 +124,10 @@ namespace RTSGame {
 
             if (KeyState.IsKeyDown(Keys.Q))
                 TestUnit.SetSteeringTarget(SteeringType.Arrive, Target);
+
+            // TODO: Test Pursue when the other target has velocity
+            if (KeyState.IsKeyDown(Keys.A))
+                TestUnit.SetSteeringTarget(SteeringType.Pursue, Target);
 
             if (KeyState.IsKeyDown(Keys.W))
                 Target.SetSteeringTarget(SteeringType.Flee, TestUnit);

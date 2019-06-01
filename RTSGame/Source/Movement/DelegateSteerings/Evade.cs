@@ -2,13 +2,13 @@
 
 namespace RTSGame {
 
-    public class Pursue : Seek {
+    public class Evade : Flee {
 
         // Holds the maximum prediction time
         public float MaxPrediction { get; set; }
 
-        // Create a Pursue behaviour
-        public Pursue() : base() {
+        // Create a Evade behaviour
+        public Evade() : base() {
             MaxPrediction = 2f; // Default value, can be changed using its property
         }
 

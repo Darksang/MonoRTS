@@ -5,9 +5,9 @@
         // Holds the time to target constant
         public float TimeToTarget { get; set; }
 
-        // Create a VelocityMatching behaviour assigned to a Unit
-        public VelocityMatching(float TimeToTarget = 0.1f) : base() {
-            this.TimeToTarget = TimeToTarget;
+        // Create a VelocityMatching behaviour
+        public VelocityMatching() : base() {
+            TimeToTarget = 0.1f; // Default value, can be changed using its property
         }
 
         public override Steering GetSteering(Unit Unit) {

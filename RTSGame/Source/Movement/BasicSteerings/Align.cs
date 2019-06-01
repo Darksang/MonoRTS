@@ -11,9 +11,9 @@ namespace RTSGame {
         // Holds the time to achieve target rotation
         public float TimeToTarget { get; set; }
 
-        // Create an Align behaviour assigned to a Unit
-        public Align(float TimeToTarget = 0.25f) : base() {
-            this.TimeToTarget = TimeToTarget;
+        // Create an Align behaviour
+        public Align() : base() {
+            TimeToTarget = 0.25f; // Default value, can be changed using its property
         }
 
         public override Steering GetSteering(Unit Unit) {

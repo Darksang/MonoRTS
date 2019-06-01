@@ -10,6 +10,7 @@
         VelocityMatching,
 
         // Delegate Steerings
+        Evade,
         Face,
         PathFollowing,
         Pursue,

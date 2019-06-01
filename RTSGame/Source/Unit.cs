@@ -104,6 +104,14 @@ namespace RTSGame {
                         Behaviours.Add(Type, new VelocityMatching());
                         break;
 
+                    case SteeringType.Evade:
+                        Behaviours.Add(Type, new Evade());
+                        break;
+
+                    case SteeringType.Pursue:
+                        Behaviours.Add(Type, new Pursue());
+                        break;
+
                     default:
                         break;
                 }

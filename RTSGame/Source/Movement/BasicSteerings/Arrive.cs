@@ -11,9 +11,9 @@ namespace RTSGame {
         // Holds the time over which to achieve target speed
         public float TimeToTarget { get; set; }
 
-        // Create an Arrive behaviour assigned to a Unit
-        public Arrive(float TimeToTarget = 0.1f) : base() {
-            this.TimeToTarget = TimeToTarget;
+        // Create an Arrive behaviour
+        public Arrive() : base() {
+            TimeToTarget = 0.1f; // Default value, can be changed using its property
         }
 
         public override Steering GetSteering(Unit Unit) {
