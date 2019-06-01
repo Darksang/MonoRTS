@@ -1,0 +1,3 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Shaders/Outline.fx","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Shaders/Outline.xnb","EffectProcessor","CompiledEffectContent",1054,1593,0.3909816
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Laharl.png","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Sprites/Laharl.xnb","TextureProcessor","Texture2DContent",20648,98581,0.1994932
