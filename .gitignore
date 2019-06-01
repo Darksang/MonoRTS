@@ -15,8 +15,6 @@
 [Oo]bj/
 
 !RTSGame/Content/bin
+!RTSGame/Content/obj
 
 .vs/
-
-# .fx files, they cannot be compiled in MacOSX with MonoGame, copy the binary compiled in Windows from Content folder instead
-*.fx
