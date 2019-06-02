@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using FarseerPhysics.Dynamics;
+
 namespace RTSGame {
 
     public class Unit {
@@ -13,6 +15,8 @@ namespace RTSGame {
         public Sprite Sprite { get; set; }
         // Holds information used to move the Unit using Steerings
         public Body Body { get; set; }
+        // Physics Body in the World
+        public Collider Collider { get; set; }
 
         // Holds all movement behaviours of the Unit
         public Dictionary<SteeringType, SteeringBehaviour> Behaviours { get; private set; }
@@ -20,22 +24,28 @@ namespace RTSGame {
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
-        public Unit(Sprite Sprite) {
+        public Unit(Sprite Sprite, World World) {
             Name = "";
             Transform = new Transform();
             this.Sprite = Sprite;
             Body = new Body();
+
+            Collider = new Collider();
+            Collider.Initialize(World, this);
 
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
             Selected = false;
         }
 
-        public Unit(string Name, Sprite Sprite) {
+        public Unit(string Name, Sprite Sprite, World World) {
             this.Name = Name;
             Transform = new Transform();
             this.Sprite = Sprite;
             Body = new Body();
+
+            Collider = new Collider();
+            Collider.Initialize(World, this);
 
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
@@ -72,6 +82,9 @@ namespace RTSGame {
                 Transform.Position += Body.Velocity * DeltaTime;
                 Transform.Rotation += Body.Rotation * DeltaTime;
             }
+
+            // Update Physics Body position
+            Collider.Body.Position = ConvertUnits.ToSimUnits(Transform.Position);
         }
 
         // Combine all SteeringBehaviours
@@ -159,6 +172,11 @@ namespace RTSGame {
         public void Draw(SpriteBatch Batch) {
             Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, MathHelper.ToRadians(Transform.Rotation), 
                 new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, SpriteEffects.None, Sprite.Layer);
+        }
+
+        public void DestroyUnit(World World) {
+            // Removes Body from World
+            World.RemoveBody(Collider.Body);
         }
     }
 }

@@ -9,6 +9,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
 
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Collision;
 
 using ImGuiNET;
 
@@ -20,7 +21,7 @@ namespace RTSGame {
         public SpriteBatch SpriteBatch { get; private set; }
 
         // Shader used to outline sprites
-        public Effect Outline;
+        private Effect Outline;
 
         // ImGui
         private ImGuiRenderer ImGuiRenderer;
@@ -38,10 +39,14 @@ namespace RTSGame {
         private bool Selecting;
 
         // List with all Units in the game
-        public List<Unit> Units;
+        public List<Unit> Units { get; private set; }
+        // Current selected single Unit
+        public Unit SelectedUnit { get; private set; }
+        // Current selected Units (when selecting dragging mouse)
+        public List<Unit> SelectedUnits { get; private set; }
 
         // Physics World
-        public World World { get; private set; }
+        public World World { get; set; }
 
         // Test
         public Unit TestUnit;
@@ -85,17 +90,19 @@ namespace RTSGame {
 
             // Initialize Unit lists
             Units = new List<Unit>();
+            SelectedUnit = null;
+            SelectedUnits = new List<Unit>();
 
             // Initialize Physics World
             Vector2 Gravity = new Vector2(0f, 0f);
             World = new World(Gravity);
 
             Sprite S = new Sprite(Content.Load<Texture2D>("Sprites//Laharl"));
-            TestUnit = new Unit("Main Unit", S);
-            Target = new Unit("Target Unit", S);
+            TestUnit = new Unit("Main Unit", S, World);
+            Target = new Unit("Target Unit", S, World);
             Target.Transform.Position = new Vector2(500f, 500f);
 
-            TestUnit.AddSteering(SteeringType.Wander);
+            //TestUnit.AddSteering(SteeringType.Wander);
             Target.AddSteering(SteeringType.Pursue);
 
             Units.Add(TestUnit);
@@ -128,33 +135,86 @@ namespace RTSGame {
             // Start new frame for ImGui
             ImGuiRenderer.BeforeLayout(GameTime);
 
-            if (KeyState.IsKeyDown(Keys.A))
-                Target.SetSteeringTarget(SteeringType.Pursue, TestUnit);
+            if (!ImGui.GetIO().WantCaptureKeyboard) {
+                if (KeyState.IsKeyDown(Keys.A))
+                    Target.SetSteeringTarget(SteeringType.Pursue, TestUnit);
 
-            if (KeyState.IsKeyDown(Keys.R) && PreviousKeyboardState.IsKeyUp(Keys.R))
-                TestUnit.Selected = !TestUnit.Selected;
-
-            // Pressing Escape de-selects all units
-            if (KeyState.IsKeyDown(Keys.Escape))
-                foreach (Unit U in Units)
-                    if (U.Selected)
-                        U.Selected = false;
-
-            // Right mouse click
-            if (MouseState.RightButton == ButtonState.Pressed && PreviousMouseState.RightButton == ButtonState.Released) {
-                Vector2 WorldMouseCoords = Camera.ScreenToWorld(new Vector2(MouseState.X, MouseState.Y));
-                Console.WriteLine(WorldMouseCoords);
+                // Pressing Escape deselects all units
+                if (KeyState.IsKeyDown(Keys.Escape))
+                    foreach (Unit U in Units)
+                        if (U.Selected)
+                            U.Selected = false;
             }
 
-            // Process selection input
-            if (MouseState.LeftButton == ButtonState.Pressed && !Selecting)
-                if ((MouseState.X != PreviousMouseState.X) && (MouseState.Y != PreviousMouseState.Y)) {
-                    Selecting = true;
-                    SelectionStart = new Vector2(MouseState.X, MouseState.Y);
+            // Process input for the game if ImGui doesn't want to capture input
+            if (!ImGui.GetIO().WantCaptureMouse) {
+                // Select single Unit with Left Click
+                if (MouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed && !Selecting) {
+                    Vector2 WorldMouseCoords = Camera.ScreenToWorld(new Vector2(MouseState.X, MouseState.Y));
+                    Fixture Test = World.TestPoint(ConvertUnits.ToSimUnits(WorldMouseCoords));
+                    if (Test != null) {
+                        if (SelectedUnit != null)
+                            SelectedUnit.Selected = false;
+                        Unit Collided = (Unit)Test.Body.UserData;
+                        SelectedUnit = Collided;
+                        Collided.Selected = true;
+                    } else if (SelectedUnit != null) {
+                        SelectedUnit.Selected = false;
+                        SelectedUnit = null;
+                    }
+
+                    if (SelectedUnits.Count != 0) {
+                        foreach (Unit U in SelectedUnits)
+                            U.Selected = false;
+
+                        SelectedUnits.Clear();
+                    }
                 }
 
-            if (MouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed && Selecting)
-                Selecting = false;
+                // Process rectangle selection input
+                if (MouseState.LeftButton == ButtonState.Pressed && !Selecting)
+                    // If we move the mouse without releasing the button we start selecting
+                    if ((MouseState.X != PreviousMouseState.X) && (MouseState.Y != PreviousMouseState.Y)) {
+                        Selecting = true;
+                        SelectionStart = new Vector2(MouseState.X, MouseState.Y);
+                    }
+
+                // Stop rectangle selection after releasing the button
+                if (MouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed && Selecting) {
+                    // Calculate area to test in world units, then convert it to simulation units
+                    Vector2 AABBMin = ConvertUnits.ToSimUnits(Camera.ScreenToWorld(new Vector2(Math.Min(SelectionStart.X, MouseState.X), Math.Min(SelectionStart.Y, MouseState.Y))));
+                    Vector2 AABBMax = ConvertUnits.ToSimUnits(Camera.ScreenToWorld(new Vector2(Math.Max(SelectionStart.X, MouseState.X), Math.Max(SelectionStart.Y, MouseState.Y))));
+                    AABB TestArea = new AABB(AABBMin, AABBMax);
+                    List<Fixture> Collisions = World.QueryAABB(ref TestArea);
+
+                    // No collision
+                    if (Collisions.Count == 0) {
+                        // If there was a single unit selected, deselect it
+                        if (SelectedUnit != null) {
+                            SelectedUnit.Selected = false;
+                            SelectedUnit = null;
+                        }
+                        // It there was a group of units selected, deselect them
+                        if (SelectedUnits.Count != 0) {
+                            foreach (Unit U in SelectedUnits)
+                                U.Selected = false;
+
+                            SelectedUnits.Clear();
+                        }
+                    } else {
+                        // Select group of units
+                        SelectedUnit = null;
+                        SelectedUnits.Clear();
+                        foreach (Fixture F in Collisions) {
+                            Unit U = (Unit)F.Body.UserData;
+                            U.Selected = true;
+                            SelectedUnits.Add(U);
+                        }
+                    }
+
+                    Selecting = false;
+                }
+            }
 
             UpdateCamera(DeltaTime);
 
@@ -248,24 +308,42 @@ namespace RTSGame {
             }
 
             // Camera movement using arrow keys
-            if (KeyState.IsKeyDown(Keys.Up))
-                Camera.Move(new Vector2(0, -CameraSensitivity) * DeltaTime);
+            if (!ImGui.GetIO().WantCaptureKeyboard) {
+                if (KeyState.IsKeyDown(Keys.Up))
+                    Camera.Move(new Vector2(0, -CameraSensitivity) * DeltaTime);
 
-            if (KeyState.IsKeyDown(Keys.Down))
-                Camera.Move(new Vector2(0, CameraSensitivity) * DeltaTime);
+                if (KeyState.IsKeyDown(Keys.Down))
+                    Camera.Move(new Vector2(0, CameraSensitivity) * DeltaTime);
 
-            if (KeyState.IsKeyDown(Keys.Left))
-                Camera.Move(new Vector2(-CameraSensitivity, 0) * DeltaTime);
+                if (KeyState.IsKeyDown(Keys.Left))
+                    Camera.Move(new Vector2(-CameraSensitivity, 0) * DeltaTime);
 
-            if (KeyState.IsKeyDown(Keys.Right))
-                Camera.Move(new Vector2(CameraSensitivity, 0) * DeltaTime);
+                if (KeyState.IsKeyDown(Keys.Right))
+                    Camera.Move(new Vector2(CameraSensitivity, 0) * DeltaTime);
+            }
 
-            // Camera Zoom
-            if (MouseState.ScrollWheelValue < PreviousScrollWheelValue)
-                Camera.ZoomOut(0.10f);
+            // Process input for the game if ImGui doesn't want to capture input
+            if (!ImGui.GetIO().WantCaptureMouse) {
+                // Camera zoom
+                if (MouseState.ScrollWheelValue < PreviousScrollWheelValue)
+                    Camera.ZoomOut(0.10f);
 
-            if (MouseState.ScrollWheelValue > PreviousScrollWheelValue)
-                Camera.ZoomIn(0.10f);
+                if (MouseState.ScrollWheelValue > PreviousScrollWheelValue)
+                    Camera.ZoomIn(0.10f);
+            }
+        }
+
+        private void AddUnit(string Name, Sprite Sprite) {
+            Units.Add(new Unit(Name, Sprite, World));
+        }
+
+        // Removes Unit from the game
+        private void RemoveUnit(Unit Unit) {
+            if (SelectedUnit == Unit)
+                SelectedUnit = null;
+
+            Unit.DestroyUnit(World);
+            Units.Remove(Unit);
         }
 
         private void DrawGizmos(SpriteBatch Batch) {
@@ -277,7 +355,12 @@ namespace RTSGame {
         private bool MiscInfoWindow = true;
         private bool DemoWindow = false;
         private bool CameraWindow = false;
+        private bool UnitsWindow = true;
         private bool UnitWindow = true;
+        private bool SelectedUnitsWindow = false;
+        private bool SteeringsWindow = false;
+
+        private string NewUnitName = "";
 
         private void DisplayGUI(GameTime GameTime) {
             // Main Menu
@@ -292,10 +375,16 @@ namespace RTSGame {
                     }
 
                     if (ImGui.BeginMenu("Game")) {
-                        if (ImGui.MenuItem("Camera Window"))
+                        if (ImGui.MenuItem("Camera"))
                             CameraWindow = true;
-                        if (ImGui.MenuItem("Unit Window"))
+                        if (ImGui.MenuItem("Units"))
+                            UnitsWindow = true;
+                        if (ImGui.MenuItem("Selected Unit"))
                             UnitWindow = true;
+                        if (ImGui.MenuItem("Selected Units List"))
+                            SelectedUnitsWindow = true;
+                        if (ImGui.MenuItem("Steerings"))
+                            SteeringsWindow = true;
                         ImGui.EndMenu();
                     }
 
@@ -315,8 +404,17 @@ namespace RTSGame {
             if (CameraWindow)
                 ShowCameraWindow();
 
+            if (UnitsWindow)
+                ShowUnitsWindow();
+
             if (UnitWindow)
                 ShowUnitWindow();
+
+            if (SelectedUnitsWindow)
+                ShowSelectedUnitsWindow();
+
+            if (SteeringsWindow)
+                ShowSteeringsWindow();
 
             if (DemoWindow)
                 ImGui.ShowDemoWindow(ref DemoWindow);
@@ -354,83 +452,147 @@ namespace RTSGame {
             Vector2 Position = Camera.Position;
             ImGui.Text("Position - " + "[ " + Position.X.ToString("0.00") + " " + Position.Y.ToString("0.00") + " ]");
             ImGui.Text("Zoom - " + Camera.Zoom.ToString("0.000"));
-            ImGui.Text("Is Selecting - " + Selecting);
+
+            ImGui.End();
+        }
+
+        private void ShowUnitsWindow() {
+            if (!ImGui.Begin("Units", ref UnitsWindow)) {
+                ImGui.End();
+                return;
+            }
+
+            ImGui.Separator();
+            Vector4 TextColor = Color.Lime.ToVector4();
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), "Create New Unit");
+            ImGui.PushItemWidth(100);
+            ImGui.InputText("Unit Name", ref NewUnitName, 32);
+            if (ImGui.Button("Create")) {
+                // TODO: Create Unit
+                Console.WriteLine(NewUnitName);
+                NewUnitName = "";
+            }
+
+            ImGui.Separator();
+
+            foreach (Unit U in Units)
+                ImGui.BulletText(U.Name);
 
             ImGui.End();
         }
 
         private void ShowUnitWindow() {
-            if (!ImGui.Begin("Unit", ref UnitWindow)) {
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(Graphics.PreferredBackBufferWidth - 280f, 20f), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(280f, 340f), ImGuiCond.Always);
+            ImGuiWindowFlags Flags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+            if (!ImGui.Begin("Selected Unit", ref UnitWindow, Flags)) {
                 ImGui.End();
                 return;
             }
 
-            ImGui.BulletText("Unit Velocity: " + Target.Body.Velocity);
+            Vector4 TextColor = Color.Lime.ToVector4();
 
-            ImGui.End();
-
-            /*ImGui.Separator();
-
-            foreach (Unit U in Units) {
-                ImGui.TextColored(new System.Numerics.Vector4(1f, 1f, 0f, 1f), U.Name);
-
-                if (ImGui.CollapsingHeader("Transform")) {
-                    ImGui.BulletText("Position - " + U.Transform.Position.ToString());
-                    ImGui.BulletText("Scale - " + U.Transform.Scale.ToString());
-                    ImGui.BulletText("Rotation - " + U.Transform.Rotation);
-                }
-
-                if (ImGui.CollapsingHeader("Body")) {
-                    ImGui.BulletText("Can Move - " + U.Body.CanMove);
-                    ImGui.BulletText("Velocity - " + U.Body.Velocity);
-                    ImGui.BulletText("Rotation - " + U.Body.Rotation);
-                    ImGui.BulletText("Max Velocity - " + U.Body.MaxVelocity);
-                    ImGui.BulletText("Max Rotation - " + U.Body.MaxRotation);
-                    ImGui.BulletText("Max Acceleration - " + U.Body.MaxAcceleration);
-                    ImGui.BulletText("Max Angular - " + U.Body.MaxAngular);
-                    ImGui.BulletText("Exterior Radius - " + U.Body.ExteriorRadius);
-                    ImGui.BulletText("Interior Radius - " + U.Body.InteriorRadius);
-                }
-
-                if (ImGui.CollapsingHeader("Sprite")) {
-                    ImGui.BulletText("Image - " + U.Sprite.SpriteTexture.Name);
-                    ImGui.BulletText("Image Width - " + U.Sprite.SpriteTexture.Width);
-                    ImGui.BulletText("Image Height - " + U.Sprite.SpriteTexture.Height);
-                    ImGui.BulletText("Color - " + U.Sprite.SpriteColor.ToString());
-                    ImGui.BulletText("Layer - " + U.Sprite.Layer);
+            if (SelectedUnit != null) {
+                ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), SelectedUnit.Name);
+                ImGui.SameLine();
+                if (ImGui.Button("Delete")) {
+                    Console.WriteLine("Unit Deleted");
+                    RemoveUnit(SelectedUnit);
+                    SelectedUnit = null;
+                    ImGui.End();
+                    return;
                 }
 
                 ImGui.Separator();
-            } */
 
-            /*ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new System.Numerics.Vector2(2f, 2f));
-            ImGui.Columns(2);
-            ImGui.Separator();
+                if (ImGui.CollapsingHeader("Transform", ImGuiTreeNodeFlags.DefaultOpen)) {
+                    Vector2 Position = SelectedUnit.Transform.Position;
+                    ImGui.BulletText("Position - " + "{" + Position.X.ToString("0.00") + " " + Position.Y.ToString("0.00") + "}");
+                    ImGui.BulletText("Scale - " + SelectedUnit.Transform.Scale);
+                    ImGui.BulletText("Rotation - " + SelectedUnit.Transform.Rotation);
+                }
 
-            // Display Units data
-            ImGui.PushID(TestUnit.Name);
+                ImGui.Separator();
 
-            ImGui.AlignTextToFramePadding();
-            bool NodeOpen = ImGui.TreeNode(TestUnit.Name);
-            ImGui.NextColumn();
-            ImGui.AlignTextToFramePadding();
-            ImGui.TextColored(new System.Numerics.Vector4(1f, 1f, 0f, 1f), "Unit");
-            ImGui.NextColumn();
+                if (ImGui.CollapsingHeader("Steering Behaviours", ImGuiTreeNodeFlags.DefaultOpen)) {
+                    foreach (SteeringType S in SelectedUnit.Behaviours.Keys) {
+                        ImGui.BulletText(S.ToString());
+                    }
+                }
 
-            if (NodeOpen) {
-                // Display needed information
+                ImGui.Separator();
 
-                // Transform
-                ImGui.AlignTextToFramePadding();
-                ImGui.TreeNodeEx("Transform");
-                ImGui.TreePop();
+                if (ImGui.CollapsingHeader("Body", ImGuiTreeNodeFlags.DefaultOpen)) {
+                    Vector2 Velocity = SelectedUnit.Body.Velocity;
+                    ImGui.BulletText("Velocity - " + "{" + Velocity.X.ToString("0.00") + " " + Velocity.Y.ToString("0.00") + "}");
+                    ImGui.BulletText("Rotation - " + SelectedUnit.Body.Rotation);
+                    ImGui.Separator();
+                    ImGui.BulletText("Max Velocity - " + SelectedUnit.Body.MaxVelocity);
+                    ImGui.BulletText("Max Rotation - " + SelectedUnit.Body.MaxRotation);
+                    ImGui.Separator();
+                    ImGui.BulletText("Max Acceleration - " + SelectedUnit.Body.MaxAcceleration);
+                    ImGui.BulletText("Max Angular - " + SelectedUnit.Body.MaxAngular);
+                    ImGui.Separator();
+                    ImGui.BulletText("Exterior Radius - " + SelectedUnit.Body.ExteriorRadius);
+                    ImGui.BulletText("Interior Radius - " + SelectedUnit.Body.InteriorRadius);
+                    ImGui.Separator();
+                    ImGui.BulletText("Exterior Angle - " + SelectedUnit.Body.ExteriorAngle);
+                    ImGui.BulletText("Interior Angle - " + SelectedUnit.Body.InteriorAngle);
+                }
+
+                ImGui.Separator();
+
+                if (ImGui.CollapsingHeader("Sprite")) {
+                    ImGui.BulletText("Name - " + SelectedUnit.Sprite.SpriteTexture.Name);
+                    ImGui.BulletText("Width - " + SelectedUnit.Sprite.SpriteTexture.Width);
+                    ImGui.BulletText("Height - " + SelectedUnit.Sprite.SpriteTexture.Height);
+                }
+            } else {
+                ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), "No Unit Selected");
+                ImGui.Separator();
             }
 
-            ImGui.PopID();
+            ImGui.End();
+        }
 
-            ImGui.Columns(1);
+        private void ShowSelectedUnitsWindow() {
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(175f, 170f), ImGuiCond.Always);
+            if (!ImGui.Begin("Selected Unit List", ref SelectedUnitsWindow, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse)) {
+                ImGui.End();
+                return;
+            }
+
             ImGui.Separator();
-            ImGui.PopStyleVar(); */
+            ImGui.Text("Is Selecting - " + Selecting);
+            ImGui.Separator();
+            foreach (Unit U in SelectedUnits)
+                ImGui.BulletText(U.Name);
+
+            ImGui.End();
+        }
+
+        private void ShowSteeringsWindow() {
+            if (!ImGui.Begin("Steerings", ref SteeringsWindow)) {
+                ImGui.End();
+                return;
+            }
+
+            ImGui.TextDisabled("(?)");
+            if (ImGui.IsItemHovered()) {
+                ImGui.BeginTooltip();
+                ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35.0f);
+                ImGui.TextUnformatted("Here you can choose a Steering to add to the current selected Unit.");
+                ImGui.PopTextWrapPos();
+                ImGui.EndTooltip();
+            }
+
+            // TODO: Select steering
+            string Selected = SteeringType.Align.ToString();
+            if (ImGui.BeginCombo("Steering Behaviour", Selected)) {
+                ImGui.EndCombo();
+            }
+
+            ImGui.End();
         }
 
         #endregion
