@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
 
+using FarseerPhysics.Dynamics;
+
 using ImGuiNET;
 
 namespace RTSGame {
@@ -17,25 +19,29 @@ namespace RTSGame {
 
         public SpriteBatch SpriteBatch { get; private set; }
 
+        // Shader used to outline sprites
+        public Effect Outline;
+
         // ImGui
         private ImGuiRenderer ImGuiRenderer;
 
         // Camera
+        private BoxingViewportAdapter ViewportAdapter;
         public Camera2D Camera { get; private set; }
         public float CameraSensitivity { get; set; }
 
         // Input
-        public KeyboardState PreviousKeyboardState { get; set; }
-        public MouseState PreviousMouseState { get; set; }
+        public KeyboardState PreviousKeyboardState { get; private set; }
+        public MouseState PreviousMouseState { get; private set; }
         private int PreviousScrollWheelValue; // Used for camera zoom
         private Vector2 SelectionStart;
         private bool Selecting;
 
-        // Shader used to outline sprites
-        public Effect Outline;
-
         // List with all Units in the game
         public List<Unit> Units;
+
+        // Physics World
+        public World World { get; private set; }
 
         // Test
         public Unit TestUnit;
@@ -62,8 +68,12 @@ namespace RTSGame {
         // Allows the game to perform any initialization before starting to run.
         // Calling base.Initialize will enumerate through any components and initialize them.
         protected override void Initialize() {
+            // Initialize ImGui renderer
+            ImGuiRenderer = new ImGuiRenderer(this);
+            ImGuiRenderer.RebuildFontAtlas();
+
             // Initialize camera
-            var ViewportAdapter = new BoxingViewportAdapter(Window, Graphics, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
+            ViewportAdapter = new BoxingViewportAdapter(Window, Graphics, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight);
             Camera = new Camera2D(ViewportAdapter);
             Camera.MinimumZoom = 0.5f;
             CameraSensitivity = 400f;
@@ -76,24 +86,20 @@ namespace RTSGame {
             // Initialize Unit lists
             Units = new List<Unit>();
 
+            // Initialize Physics World
+            Vector2 Gravity = new Vector2(0f, 0f);
+            World = new World(Gravity);
+
             Sprite S = new Sprite(Content.Load<Texture2D>("Sprites//Laharl"));
             TestUnit = new Unit("Main Unit", S);
             Target = new Unit("Target Unit", S);
             Target.Transform.Position = new Vector2(500f, 500f);
 
-            // Add arrive steering
-            TestUnit.AddSteering(SteeringType.Arrive);
-            TestUnit.AddSteering(SteeringType.Pursue);
-
-            // Add flee steering
-            Target.AddSteering(SteeringType.Flee);
+            TestUnit.AddSteering(SteeringType.Wander);
+            Target.AddSteering(SteeringType.Pursue);
 
             Units.Add(TestUnit);
             Units.Add(Target);
-
-            // Initialize ImGui renderer
-            ImGuiRenderer = new ImGuiRenderer(this);
-            ImGuiRenderer.RebuildFontAtlas();
 
             base.Initialize();
         }
@@ -122,18 +128,23 @@ namespace RTSGame {
             // Start new frame for ImGui
             ImGuiRenderer.BeforeLayout(GameTime);
 
-            if (KeyState.IsKeyDown(Keys.Q))
-                TestUnit.SetSteeringTarget(SteeringType.Arrive, Target);
-
-            // TODO: Test Pursue when the other target has velocity
             if (KeyState.IsKeyDown(Keys.A))
-                TestUnit.SetSteeringTarget(SteeringType.Pursue, Target);
-
-            if (KeyState.IsKeyDown(Keys.W))
-                Target.SetSteeringTarget(SteeringType.Flee, TestUnit);
+                Target.SetSteeringTarget(SteeringType.Pursue, TestUnit);
 
             if (KeyState.IsKeyDown(Keys.R) && PreviousKeyboardState.IsKeyUp(Keys.R))
                 TestUnit.Selected = !TestUnit.Selected;
+
+            // Pressing Escape de-selects all units
+            if (KeyState.IsKeyDown(Keys.Escape))
+                foreach (Unit U in Units)
+                    if (U.Selected)
+                        U.Selected = false;
+
+            // Right mouse click
+            if (MouseState.RightButton == ButtonState.Pressed && PreviousMouseState.RightButton == ButtonState.Released) {
+                Vector2 WorldMouseCoords = Camera.ScreenToWorld(new Vector2(MouseState.X, MouseState.Y));
+                Console.WriteLine(WorldMouseCoords);
+            }
 
             // Process selection input
             if (MouseState.LeftButton == ButtonState.Pressed && !Selecting)
@@ -150,6 +161,9 @@ namespace RTSGame {
             // Update Units
             foreach (Unit U in Units)
                 U.Update(DeltaTime);
+
+            // Update Physics
+            World.Step(1f / 60f);
 
             // Store input state for next frame
             PreviousScrollWheelValue = MouseState.ScrollWheelValue;
@@ -351,7 +365,7 @@ namespace RTSGame {
                 return;
             }
 
-            ImGui.BulletText("TODO");
+            ImGui.BulletText("Unit Velocity: " + Target.Body.Velocity);
 
             ImGui.End();
 

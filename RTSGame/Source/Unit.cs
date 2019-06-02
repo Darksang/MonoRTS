@@ -48,13 +48,29 @@ namespace RTSGame {
                 // Compute final steering
                 Steering Final = GetBlendedSteering();
 
-                // Move the Unit
-                Transform.Position += Body.Velocity * DeltaTime;
-                Transform.Rotation += Body.Rotation * DeltaTime;
-
                 // Apply Newton-Euler equations
                 Body.Velocity += Final.Linear * DeltaTime;
-                Body.Rotation += Final.Angular * DeltaTime;
+                Body.Rotation += MathHelper.ToDegrees(Final.Angular) * DeltaTime;
+
+                // Cap velocity and rotation to their max values
+                if (Body.Velocity.X > Body.MaxVelocity)
+                    Body.Velocity = new Vector2(Body.MaxVelocity, Body.Velocity.Y);
+
+                if (Body.Velocity.X < -Body.MaxVelocity)
+                    Body.Velocity = new Vector2(-Body.MaxVelocity, Body.Velocity.Y);
+
+                if (Body.Velocity.Y > Body.MaxVelocity)
+                    Body.Velocity = new Vector2(Body.Velocity.X, Body.MaxVelocity);
+
+                if (Body.Velocity.Y < -Body.MaxVelocity)
+                    Body.Velocity = new Vector2(Body.Velocity.X, -Body.MaxVelocity);
+
+                if (Body.Rotation > Body.MaxRotation)
+                    Body.Rotation = Body.MaxRotation;
+
+                // Move the Unit based on computed Velocity and Rotation
+                Transform.Position += Body.Velocity * DeltaTime;
+                Transform.Rotation += Body.Rotation * DeltaTime;
             }
         }
 
@@ -70,8 +86,6 @@ namespace RTSGame {
                 Result.Linear += B.Weight * S.Linear;
                 Result.Angular += S.Angular;
             }
-
-            // TODO: Crop the result? max(Result.Linear, MaxAcceleration) max(Result.Angular, MaxRotation)
 
             return Result;
         }
@@ -108,8 +122,20 @@ namespace RTSGame {
                         Behaviours.Add(Type, new Evade());
                         break;
 
+                    case SteeringType.Face:
+                        Behaviours.Add(Type, new Face());
+                        break;
+
+                    case SteeringType.LookWhereYouGoing:
+                        Behaviours.Add(Type, new LookWhereYouGoing());
+                        break;
+
                     case SteeringType.Pursue:
                         Behaviours.Add(Type, new Pursue());
+                        break;
+
+                    case SteeringType.Wander:
+                        Behaviours.Add(Type, new Wander());
                         break;
 
                     default:
@@ -131,7 +157,7 @@ namespace RTSGame {
         }
 
         public void Draw(SpriteBatch Batch) {
-            Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, Transform.Rotation, 
+            Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, MathHelper.ToRadians(Transform.Rotation), 
                 new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, SpriteEffects.None, Sprite.Layer);
         }
     }

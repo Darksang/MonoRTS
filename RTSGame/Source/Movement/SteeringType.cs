@@ -12,6 +12,7 @@
         // Delegate Steerings
         Evade,
         Face,
+        LookWhereYouGoing,
         PathFollowing,
         Pursue,
         Wander

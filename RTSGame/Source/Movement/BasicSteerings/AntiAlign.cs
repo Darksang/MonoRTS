@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace RTSGame {
 
@@ -24,7 +25,7 @@ namespace RTSGame {
                 return Result;
 
             // Get naive direction to the target
-            float Rotation = Target.Transform.Rotation - Unit.Transform.Rotation;
+            float Rotation = MathHelper.ToRadians(Target.Transform.Rotation) - MathHelper.ToRadians(Unit.Transform.Rotation);
             // Add pi to rotation to be opposed to original rotation
             Rotation += (float)Math.PI;
             float RotationSize = Math.Abs(Rotation);
@@ -62,8 +63,8 @@ namespace RTSGame {
         public override void SetTarget(Unit Target) {
             this.Target = Target;
 
-            Angle = Target.Body.ExteriorRadius;
-            SlowAngle = Target.Body.InteriorRadius - 10f; // TODO: What are these values supposed to be?
+            Angle = MathHelper.ToRadians(Target.Body.ExteriorAngle);
+            SlowAngle = MathHelper.ToRadians(Target.Body.InteriorAngle);
         }
     }
 }

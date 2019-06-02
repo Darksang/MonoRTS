@@ -28,9 +28,9 @@ namespace RTSGame {
         public float ExteriorRadius { get; set; }
 
         // Interior angle used in Align, AntiAlign.....
-        //public float InteriorAngle { get; set; }
+        public float InteriorAngle { get; set; }
         // Exterior angles used in Align, AntiAlign.....
-        //public float ExteriorAngle { get; set; }
+        public float ExteriorAngle { get; set; }
 
         public Body() {
             CanMove = true;
@@ -40,13 +40,16 @@ namespace RTSGame {
 
             // TODO: Test values to determine which are better
             MaxVelocity = 200f;
-            MaxRotation = 10f;
+            MaxRotation = 50f;
 
-            MaxAcceleration = 0.5f;
-            MaxAngular = 0.5f;
+            MaxAcceleration = 50f;
+            MaxAngular = 30f;
 
             InteriorRadius = 100f;
             ExteriorRadius = 150f;
+
+            InteriorAngle = 20f;
+            ExteriorAngle = 30f;
         }
     }
 }
