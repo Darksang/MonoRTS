@@ -8,6 +8,7 @@
         // Create a VelocityMatching behaviour
         public VelocityMatching() : base() {
             TimeToTarget = 0.1f; // Default value, can be changed using its property
+            Type = SteeringType.VelocityMatching;
         }
 
         public override Steering GetSteering(Unit Unit) {

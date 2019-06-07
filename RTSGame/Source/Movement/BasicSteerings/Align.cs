@@ -6,7 +6,7 @@ namespace RTSGame {
     public class Align : SteeringBehaviour {
 
         // Holds the target angle
-        public float Angle { get; set; }
+        public float TargetAngle { get; set; }
         // Holds the angle for slowing down
         public float SlowAngle { get; set; }
         // Holds the time to achieve target rotation
@@ -14,7 +14,8 @@ namespace RTSGame {
 
         // Create an Align behaviour
         public Align() : base() {
-            TimeToTarget = 0.25f; // Default value, can be changed using its property
+            TimeToTarget = 1f; // Default value, can be changed using its property
+            Type = SteeringType.Align;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -25,27 +26,29 @@ namespace RTSGame {
                 return Result;
 
             // Get naive direction to the target
-            float Rotation = MathHelper.ToRadians(Target.Transform.Rotation) - MathHelper.ToRadians(Unit.Transform.Rotation);
+            float Rotation = Target.Transform.Rotation - Unit.Transform.Rotation;
+            // Map the result to the (-pi, pi) interval
+            MathHelper.WrapAngle(Rotation);
             float RotationSize = Math.Abs(Rotation);
 
             // Check if we're there
-            if (RotationSize < Angle)
+            if (RotationSize < TargetAngle)
                 return Result;
 
             float TargetRotation;
 
             // If we are outside SlowRadius, use maximum rotation
             if (RotationSize > SlowAngle)
-                TargetRotation = Unit.Body.MaxRotation;
+                TargetRotation = Unit.Body.MaxRotationVelocity;
             else
                 // Otherwise calculate scaled rotation
-                TargetRotation = Unit.Body.MaxRotation * RotationSize / SlowAngle;
+                TargetRotation = Unit.Body.MaxRotationVelocity * RotationSize / SlowAngle;
 
             // The final target rotation combines speed and direction
             TargetRotation *= Rotation / RotationSize;
 
             // Acceleration tries to get to the target rotation
-            Result.Angular = TargetRotation - Unit.Body.Rotation;
+            Result.Angular = TargetRotation - Unit.Body.RotationVelocity;
             Result.Angular /= TimeToTarget;
 
             // If it's too fast, clip it to MaxAngular
@@ -62,27 +65,27 @@ namespace RTSGame {
             Steering Result = new Steering();
 
             // Get naive direction to the target
-            float Rotation = Orientation - MathHelper.ToRadians(Unit.Transform.Rotation);
+            float Rotation = Orientation - Unit.Transform.Rotation;
             float RotationSize = Math.Abs(Rotation);
 
             // Check if we're there
-            if (RotationSize < Angle)
+            if (RotationSize < TargetAngle)
                 return Result;
 
             float TargetRotation;
 
             // If we are outside SlowRadius, use maximum rotation
             if (RotationSize > SlowAngle)
-                TargetRotation = Unit.Body.MaxRotation;
+                TargetRotation = Unit.Body.MaxRotationVelocity;
             else
                 // Otherwise calculate scaled rotation
-                TargetRotation = Unit.Body.MaxRotation * RotationSize / SlowAngle;
+                TargetRotation = Unit.Body.MaxRotationVelocity * RotationSize / SlowAngle;
 
             // The final target rotation combines speed and direction
             TargetRotation *= Rotation / RotationSize;
 
             // Acceleration tries to get to the target rotation
-            Result.Angular = TargetRotation - Unit.Body.Rotation;
+            Result.Angular = TargetRotation - Unit.Body.RotationVelocity;
             Result.Angular /= TimeToTarget;
 
             // If it's too fast, clip it to MaxAngular
@@ -98,8 +101,8 @@ namespace RTSGame {
         public override void SetTarget(Unit Target) {
             this.Target = Target;
 
-            Angle = MathHelper.ToRadians(Target.Body.ExteriorAngle);
-            SlowAngle = MathHelper.ToRadians(Target.Body.InteriorAngle);
+            TargetAngle = Target.Body.InteriorAngle;
+            SlowAngle = Target.Body.ExteriorAngle;
         }
     }
 }

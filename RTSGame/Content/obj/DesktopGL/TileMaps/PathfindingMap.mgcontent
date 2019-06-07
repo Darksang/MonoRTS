@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/PathfindingMap.tmx</SourceFile>
+  <SourceTime>2019-06-05T21:39:09.2298841+02:00</SourceTime>
+  <DestFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/TileMaps/PathfindingMap.xnb</DestFile>
+  <DestTime>2019-06-07T13:54:01.3545402+02:00</DestTime>
+  <Importer>TiledMapImporter</Importer>
+  <ImporterTime>2018-05-23T11:26:24+02:00</ImporterTime>
+  <Processor>TiledMapProcessor</Processor>
+  <ProcessorTime>2018-05-23T11:26:24+02:00</ProcessorTime>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

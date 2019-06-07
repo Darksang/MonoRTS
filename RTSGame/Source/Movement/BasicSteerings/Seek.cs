@@ -5,7 +5,9 @@ namespace RTSGame {
     public class Seek : SteeringBehaviour {
 
         // Create a Seek behaviour
-        public Seek() : base() { }
+        public Seek() : base() {
+            Type = SteeringType.Seek;
+        }
 
         // Seeks assigned Target
         public override Steering GetSteering(Unit Unit) {

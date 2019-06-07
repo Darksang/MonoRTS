@@ -5,7 +5,9 @@ namespace RTSGame {
     public class Flee : SteeringBehaviour {
 
         // Create a Flee behaviour
-        public Flee() : base() { }
+        public Flee() : base() {
+            Type = SteeringType.Flee;
+        }
 
         // Seeks assigned Target
         public override Steering GetSteering(Unit Unit) {

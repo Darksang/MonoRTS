@@ -1,3 +1,7 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Shaders/Outline.fx","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Shaders/Outline.xnb","EffectProcessor","CompiledEffectContent",1054,1593,0.3909816
-"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Laharl.png","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Sprites/Laharl.xnb","TextureProcessor","Texture2DContent",20648,98581,0.1994932
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Fonts/Consolas.spritefont","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Fonts/Consolas.xnb","FontDescriptionProcessor","SpriteFontContent",2011,21521,0.4223822
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Shaders/Outline.fx","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Shaders/Outline.xnb","EffectProcessor","CompiledEffectContent",1054,1593,0.2615891
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Player.png","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Sprites/Player.xnb","TextureProcessor","Texture2DContent",20648,98581,0.218924
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Stump.png","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Sprites/Stump.xnb","TextureProcessor","Texture2DContent",10540,13653,0.0109698
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/hyptosis_tile-art-batch-1.png","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/TileMaps/hyptosis_tile-art-batch-1.xnb","TextureProcessor","Texture2DContent",525029,3686485,0.1555852
+"C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/PathfindingMap.tmx","C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/TileMaps/PathfindingMap.xnb","TiledMapProcessor","TiledMapContent",1111,19176,0.1376316

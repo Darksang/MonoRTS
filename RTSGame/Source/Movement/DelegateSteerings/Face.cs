@@ -6,7 +6,9 @@ namespace RTSGame {
     public class Face : Align {
 
         // Create a Face behaviour
-        public Face() : base() { }
+        public Face() : base() {
+            Type = SteeringType.Face;
+        }
 
         public override Steering GetSteering(Unit Unit) {
             // If there is no target there's no need to move

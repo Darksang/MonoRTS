@@ -10,6 +10,7 @@ namespace RTSGame {
         // Create a Evade behaviour
         public Evade() : base() {
             MaxPrediction = 2f; // Default value, can be changed using its property
+            Type = SteeringType.Evade;
         }
 
         public override Steering GetSteering(Unit Unit) {

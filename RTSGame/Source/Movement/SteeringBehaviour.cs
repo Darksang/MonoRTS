@@ -4,6 +4,7 @@
 
         public Unit Target { get; protected set; }
         public int Weight { get; set; }
+        public SteeringType Type { get; protected set; }
 
         public SteeringBehaviour() {
             Target = null;

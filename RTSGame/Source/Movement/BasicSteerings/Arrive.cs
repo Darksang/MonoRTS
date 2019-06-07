@@ -5,7 +5,7 @@ namespace RTSGame {
     public class Arrive : SteeringBehaviour {
 
         // Holds the radius for arriving at the target
-        public float Radius { get; set; }
+        public float TargetRadius { get; set; }
         // Hols the radius for slowing down
         public float SlowRadius { get; set; }
         // Holds the time over which to achieve target speed
@@ -14,6 +14,7 @@ namespace RTSGame {
         // Create an Arrive behaviour
         public Arrive() : base() {
             TimeToTarget = 0.1f; // Default value, can be changed using its property
+            Type = SteeringType.Arrive;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -28,13 +29,13 @@ namespace RTSGame {
             float Distance = Direction.Length();
 
             // Check if we're within target Radius
-            if (Distance < Radius)
+            if (Distance < TargetRadius)
                 // We arrived, no need to move
                 return Result;
 
             float TargetSpeed;
 
-            // If we are outside the SlowRadius, then go MaxVelocity
+            // If we are outside the slow radius, then go at max velocity
             if (Distance > SlowRadius)
                 TargetSpeed = Unit.Body.MaxVelocity;
             else
@@ -50,7 +51,7 @@ namespace RTSGame {
             Result.Linear = TargetVelocity - Unit.Body.Velocity;
             Result.Linear /= TimeToTarget;
 
-            // If it's too fast, clip it to MaxAcceleration
+            // Check if the acceleration is too fast
             if (Result.Linear.Length() > Unit.Body.MaxAcceleration) {
                 Result.Linear.Normalize();
                 Result.Linear *= Unit.Body.MaxAcceleration;
@@ -63,8 +64,8 @@ namespace RTSGame {
         public override void SetTarget(Unit Target) {
             this.Target = Target;
 
-            Radius = Target.Body.ExteriorRadius;
-            SlowRadius = Target.Body.InteriorRadius;
+            TargetRadius = Target.Body.InteriorRadius;
+            SlowRadius = Target.Body.ExteriorRadius;
         }
     }
 }

@@ -9,7 +9,8 @@ namespace RTSGame {
 
         // Create a Pursue behaviour
         public Pursue() : base() {
-            MaxPrediction = 2f; // Default value, can be changed using its property
+            MaxPrediction = 4f; // Default value, can be changed using its property
+            Type = SteeringType.Pursue;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -21,6 +22,7 @@ namespace RTSGame {
             Vector2 Direction = Target.Transform.Position - Unit.Transform.Position;
             float Distance = Direction.Length();
 
+            // Get current speed
             float Speed = Unit.Body.Velocity.Length();
 
             float Prediction;

@@ -55,8 +55,12 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Source\Body.cs" />
-    <Compile Include="Source\Collider.cs" />
+    <Compile Include="Source\Movement\Formations\FormationManager.cs" />
+    <Compile Include="Source\Movement\Formations\FormationPattern.cs" />
+    <Compile Include="Source\Movement\Formations\Patterns\DefensiveCirclePattern.cs" />
+    <Compile Include="Source\Movement\Formations\Slot.cs" />
+    <Compile Include="Source\Game\Body.cs" />
+    <Compile Include="Source\Game\Collider.cs" />
     <Compile Include="Source\ConvertUnits.cs" />
     <Compile Include="Source\ImGui\ImGuiRenderer.cs" />
     <Compile Include="Source\Movement\BasicSteerings\Align.cs" />
@@ -78,9 +82,17 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Movement\SteeringType.cs" />
-    <Compile Include="Source\Sprite.cs" />
-    <Compile Include="Source\Transform.cs" />
-    <Compile Include="Source\Unit.cs" />
+    <Compile Include="Source\Pathfinding\Grid.cs" />
+    <Compile Include="Source\Pathfinding\Node.cs" />
+    <Compile Include="Source\Pathfinding\Pathfinding.cs" />
+    <Compile Include="Source\Scenes\GroupsScene.cs" />
+    <Compile Include="Source\Scenes\PathfindingScene.cs" />
+    <Compile Include="Source\Scenes\Scene.cs" />
+    <Compile Include="Source\Scenes\EmptyScene.cs" />
+    <Compile Include="Source\Scenes\SteeringTestScene.cs" />
+    <Compile Include="Source\Game\Sprite.cs" />
+    <Compile Include="Source\Game\Transform.cs" />
+    <Compile Include="Source\Game\Units\Unit.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FarseerPhysics MonoGame, Version=3.5.0.40766, Culture=neutral, processorArchitecture=MSIL">
@@ -91,6 +103,12 @@
     </Reference>
     <Reference Include="MonoGame.Extended, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Extended.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Extended.Graphics, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Extended.Graphics.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.Graphics.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Extended.Tiled, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Extended.Tiled.1.1.0\lib\portable-net45+win8+wpa81\MonoGame.Extended.Tiled.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
@@ -175,6 +193,9 @@
     <Content Include="..\packages\ImGui.NET.1.70.0\runtimes\win-x64\native\cimgui.dll">
       <Link>cimgui.dll</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Source\AI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

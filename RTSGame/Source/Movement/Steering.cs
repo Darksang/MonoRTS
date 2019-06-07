@@ -3,10 +3,9 @@
 namespace RTSGame {
 
     public class Steering {
-
         // Accelerated Uniform Movement
-        public Vector2 Linear { get; set; }
-        public float Angular { get; set; }
+        public Vector2 Linear;
+        public float Angular;
 
         public Steering() {
             Linear = new Vector2(0f, 0f);

@@ -7,7 +7,7 @@ namespace RTSGame {
         public Vector2 Position { get; set; }
         // Scale, (1, 1) it's the original size
         public Vector2 Scale { get; set; }
-        // Rotation in degrees
+        // Rotation in radians
         public float Rotation { get; set; }
 
         public Transform() {

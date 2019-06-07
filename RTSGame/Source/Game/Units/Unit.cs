@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -24,20 +25,6 @@ namespace RTSGame {
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
-        public Unit(Sprite Sprite, World World) {
-            Name = "";
-            Transform = new Transform();
-            this.Sprite = Sprite;
-            Body = new Body();
-
-            Collider = new Collider();
-            Collider.Initialize(World, this);
-
-            Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
-
-            Selected = false;
-        }
-
         public Unit(string Name, Sprite Sprite, World World) {
             this.Name = Name;
             Transform = new Transform();
@@ -53,38 +40,34 @@ namespace RTSGame {
         }
 
         public void Update(float DeltaTime) {
+            // TODO: Find out how to make the character stop slowly when there are no Steerings working
             // Check if the Unit is able to move
             if (Body.CanMove) {
                 // Compute final steering
                 Steering Final = GetBlendedSteering();
 
-                // Apply Newton-Euler equations
-                Body.Velocity += Final.Linear * DeltaTime;
-                Body.Rotation += MathHelper.ToDegrees(Final.Angular) * DeltaTime;
+                // TODO: Is Final.Angular != 0 bad?
+                if (Final.Linear.Length() > 0 || Final.Angular != 0) {
 
-                // Cap velocity and rotation to their max values
-                if (Body.Velocity.X > Body.MaxVelocity)
-                    Body.Velocity = new Vector2(Body.MaxVelocity, Body.Velocity.Y);
+                    // Update position and orientation
+                    Transform.Position += Body.Velocity * DeltaTime;
+                    Transform.Rotation += Body.RotationVelocity * DeltaTime;
 
-                if (Body.Velocity.X < -Body.MaxVelocity)
-                    Body.Velocity = new Vector2(-Body.MaxVelocity, Body.Velocity.Y);
+                    // Update velocity and rotation
+                    Body.Velocity += Final.Linear * DeltaTime;
+                    Body.RotationVelocity += Final.Angular * DeltaTime;
 
-                if (Body.Velocity.Y > Body.MaxVelocity)
-                    Body.Velocity = new Vector2(Body.Velocity.X, Body.MaxVelocity);
+                    // Clip speed if its too high
+                    if (Body.Velocity.Length() > Body.MaxVelocity)
+                        Body.ClipVelocity();
 
-                if (Body.Velocity.Y < -Body.MaxVelocity)
-                    Body.Velocity = new Vector2(Body.Velocity.X, -Body.MaxVelocity);
-
-                if (Body.Rotation > Body.MaxRotation)
-                    Body.Rotation = Body.MaxRotation;
-
-                // Move the Unit based on computed Velocity and Rotation
-                Transform.Position += Body.Velocity * DeltaTime;
-                Transform.Rotation += Body.Rotation * DeltaTime;
+                    // Update Physics Body position
+                    Collider.Body.Position = ConvertUnits.ToSimUnits(Transform.Position);
+                } else {
+                    Body.Velocity = new Vector2(0f, 0f);
+                    Body.RotationVelocity = 0f;
+                }
             }
-
-            // Update Physics Body position
-            Collider.Body.Position = ConvertUnits.ToSimUnits(Transform.Position);
         }
 
         // Combine all SteeringBehaviours
@@ -101,6 +84,16 @@ namespace RTSGame {
             }
 
             return Result;
+        }
+
+        // Set Unit orientation based on its velocity
+        public float GetNewOrientation() {
+            // Make sure we have a velocity
+            if (Body.Velocity.Length() > 0)
+                // Calculate orientation using arc tangent of the velocity
+                return (float)Math.Atan2(Body.Velocity.Y, Body.Velocity.X);
+
+            return Transform.Rotation;
         }
 
         // Adds a specific Steering if it's not already contained
@@ -157,21 +150,31 @@ namespace RTSGame {
             }
         }
 
-        // Removes a specific Steering
         public void RemoveSteering(SteeringType Type) {
             if (Behaviours.ContainsKey(Type))
                 Behaviours.Remove(Type);
         }
 
-        // Sets the target for a specific Steering
         public void SetSteeringTarget(SteeringType Type, Unit Target) {
             if (Behaviours.ContainsKey(Type))
                 Behaviours[Type].SetTarget(Target);
         }
 
+        public void SetSteeringWeight(SteeringType Type, int Weight) {
+            if (Behaviours.ContainsKey(Type))
+                Behaviours[Type].Weight = Weight;
+        }
+
         public void Draw(SpriteBatch Batch) {
-            Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, MathHelper.ToRadians(Transform.Rotation), 
-                new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, SpriteEffects.None, Sprite.Layer);
+            SpriteEffects Flip = SpriteEffects.None;
+
+            if (Body.Velocity.X >= 0.01f)
+                Flip = SpriteEffects.FlipHorizontally;
+            else if (Body.Velocity.X <= -0.01f)
+                Flip = SpriteEffects.None;
+
+            Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, Transform.Rotation, 
+                new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, Flip, Sprite.Layer);
         }
 
         public void DestroyUnit(World World) {

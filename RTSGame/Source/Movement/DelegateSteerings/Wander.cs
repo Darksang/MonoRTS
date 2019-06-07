@@ -22,22 +22,24 @@ namespace RTSGame {
             WanderOrientation = 2f;
 
             Random = new Random();
+
+            Type = SteeringType.Wander;
         }
 
         public override Steering GetSteering(Unit Unit) {
-            // Update wander orientation
+            // Update wander orientation (Random.NextDouble() returns a number between 0.0 and 1.0)
             float RandomBinomial = (float)(Random.NextDouble() - Random.NextDouble());
             WanderOrientation += RandomBinomial * WanderRate;
 
             // Calculate the combined target orientation
-            float TargetOrientation = WanderOrientation + Unit.Body.Rotation;
-            float TX = (float)Math.Cos(MathHelper.ToRadians(TargetOrientation));
-            float TY = (float)Math.Sin(MathHelper.ToRadians(TargetOrientation));
+            float TargetOrientation = WanderOrientation + Unit.Transform.Rotation;
+            float TX = (float)Math.Cos(TargetOrientation);
+            float TY = (float)Math.Sin(TargetOrientation);
             Vector2 TargetOrientationVector = new Vector2(TX, TY);
 
             // Calculate the center of the wander circle
-            float OX = (float)Math.Cos(MathHelper.ToRadians(Unit.Body.Rotation));
-            float OY = (float)Math.Sin(MathHelper.ToRadians(Unit.Body.Rotation));
+            float OX = (float)Math.Cos(Unit.Transform.Rotation);
+            float OY = (float)Math.Sin(Unit.Transform.Rotation);
             Vector2 OrientationVector = new Vector2(OX, OY);
 
             Vector2 Target = Unit.Transform.Position + WanderOffset * OrientationVector;
