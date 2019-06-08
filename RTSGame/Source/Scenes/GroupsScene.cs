@@ -22,9 +22,7 @@ namespace RTSGame {
         private Vector2 SelectionStart;
         private bool Selecting;
 
-        public GroupsScene(MainGame MainGame) : base(MainGame) {
-
-        }
+        public GroupsScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
             // Reset physics world
@@ -46,6 +44,11 @@ namespace RTSGame {
             Unit U = new Unit("Test", S, World);
             U.Transform.Position = new Vector2(0f, 0f);
             U.Collider.Body.Position = ConvertUnits.ToSimUnits(U.Transform.Position);
+
+            U.AddSteering(SteeringType.Alignment);
+            U.AddSteering(SteeringType.Cohesion);
+            U.AddSteering(SteeringType.Separation);
+
             Units.Add(U);
         }
 
@@ -54,6 +57,13 @@ namespace RTSGame {
 
             // Process input
             AreaSelection();
+
+            // TODO: How to make a group flock and stop flocking?
+            if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyUp(Keys.F)) {
+                foreach (Unit U in SelectedUnits) {
+                    U.SetGroupTarget(SelectedUnits);
+                }
+            }
 
             // Update units
             foreach (Unit U in Units)

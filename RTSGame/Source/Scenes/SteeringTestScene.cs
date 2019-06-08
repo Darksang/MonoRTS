@@ -11,9 +11,7 @@ namespace RTSGame {
 
     public class SteeringTestScene : Scene {
 
-        public SteeringTestScene(MainGame MainGame) : base(MainGame) {
-            
-        }
+        public SteeringTestScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
             // Reset physics world
@@ -78,6 +76,7 @@ namespace RTSGame {
             Unit Seek = new Unit("Seek", L, World);
             Seek.Transform.Position = new Vector2(0f, 200f);
             Seek.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(0f, 200f));
+            Seek.DrawDebugVelocity = true;
 
             Unit SeekTarget = new Unit("Seek Target", L, World);
             SeekTarget.Transform.Position = new Vector2(0f, -200f);
@@ -92,6 +91,7 @@ namespace RTSGame {
             Unit Flee = new Unit("Flee", L, World);
             Flee.Transform.Position = new Vector2(300f, 0f);
             Flee.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(300f, 0f));
+            Flee.DrawDebugVelocity = true;
 
             Unit FleeTarget = new Unit("Flee Target", L, World);
             FleeTarget.Transform.Position = new Vector2(300f, -200f);
@@ -106,10 +106,13 @@ namespace RTSGame {
             Unit Arrive = new Unit("Arrive", L, World);
             Arrive.Transform.Position = new Vector2(600f, 200f);
             Arrive.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(600f, 200f));
+            Arrive.DrawDebugVelocity = true;
 
             Unit ArriveTarget = new Unit("Arrive Target", L, World);
             ArriveTarget.Transform.Position = new Vector2(600f, -200f);
             ArriveTarget.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(600f, -200f));
+            ArriveTarget.DrawDebugRadiuses = true;
+            ArriveTarget.Body.InteriorRadius = 150f;
 
             Arrive.AddSteering(SteeringType.Arrive);
 
@@ -149,6 +152,7 @@ namespace RTSGame {
             Unit Wander = new Unit("Wander", L, World);
             Wander.Transform.Position = new Vector2(1500f, 0f);
             Wander.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(1500f, 0f));
+            Wander.DrawDebugVelocity = true;
 
             Units.Add(Wander);
 
@@ -157,6 +161,7 @@ namespace RTSGame {
             Pursue.Transform.Position = new Vector2(1800f, 200f);
             Pursue.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(1800f, 200f));
             Pursue.Body.MaxVelocity = 200f;
+            Pursue.DrawDebugVelocity = true;
 
             Unit PursueTarget = new Unit("Pursue Target", L, World);
             PursueTarget.Transform.Position = new Vector2(1800f, -200f);
@@ -173,6 +178,7 @@ namespace RTSGame {
             Evade.Transform.Position = new Vector2(2100f, 200f);
             Evade.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(2100f, 200f));
             Evade.Body.MaxVelocity = 200f;
+            Evade.DrawDebugVelocity = true;
 
             Unit EvadeTarget = new Unit("Evade Target", L, World);
             EvadeTarget.Transform.Position = new Vector2(2100f, -200f);
@@ -189,11 +195,13 @@ namespace RTSGame {
             VelocityMatching.Transform.Position = new Vector2(2400f, 200f);
             VelocityMatching.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(2400f, 200f));
             VelocityMatching.Body.MaxVelocity = 200f;
+            VelocityMatching.DrawDebugVelocity = true;
 
             Unit VelocityMatchingTarget = new Unit("VelocityMatching Target", L, World);
             VelocityMatchingTarget.Transform.Position = new Vector2(2400f, -200f);
             VelocityMatchingTarget.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(2400f, -200f));
             VelocityMatchingTarget.Body.MaxVelocity = 70f;
+            VelocityMatchingTarget.DrawDebugVelocity = true;
 
             VelocityMatching.AddSteering(SteeringType.VelocityMatching);
 
@@ -218,10 +226,12 @@ namespace RTSGame {
             Unit Look = new Unit("Look", L, World);
             Look.Transform.Position = new Vector2(3000f, 200f);
             Look.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(3000f, 200f));
+            Look.DrawDebugVelocity = true;
 
             Unit LookTarget = new Unit("Look Target", L, World);
             LookTarget.Transform.Position = new Vector2(3000f, -200f);
             LookTarget.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(3000f, -200f));
+            LookTarget.DrawDebugVelocity = true;
 
             Look.AddSteering(SteeringType.Arrive);
             Look.AddSteering(SteeringType.LookWhereYouGoing);

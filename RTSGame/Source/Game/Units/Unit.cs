@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using MonoGame.Extended;
+
 using FarseerPhysics.Dynamics;
 
 namespace RTSGame {
@@ -25,6 +27,10 @@ namespace RTSGame {
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
+        // Draw debug flags
+        public bool DrawDebugVelocity { get; set; }
+        public bool DrawDebugRadiuses { get; set; }
+
         public Unit(string Name, Sprite Sprite, World World) {
             this.Name = Name;
             Transform = new Transform();
@@ -37,6 +43,9 @@ namespace RTSGame {
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
             Selected = false;
+
+            DrawDebugVelocity = false;
+            DrawDebugRadiuses = false;
         }
 
         public void Update(float DeltaTime) {
@@ -96,7 +105,7 @@ namespace RTSGame {
             return Transform.Rotation;
         }
 
-        // Adds a specific Steering if it's not already contained
+        // Adds a specific Steering if it's not already contained TODO: Add all SteeringTypes
         public void AddSteering(SteeringType Type) {
             if (!Behaviours.ContainsKey(Type)) {
                 switch(Type) {
@@ -144,6 +153,18 @@ namespace RTSGame {
                         Behaviours.Add(Type, new Wander());
                         break;
 
+                    case SteeringType.Alignment:
+                        Behaviours.Add(Type, new Alignment());
+                        break;
+
+                    case SteeringType.Cohesion:
+                        Behaviours.Add(Type, new Cohesion());
+                        break;
+
+                    case SteeringType.Separation:
+                        Behaviours.Add(Type, new Separation());
+                        break;
+
                     default:
                         break;
                 }
@@ -158,6 +179,17 @@ namespace RTSGame {
         public void SetSteeringTarget(SteeringType Type, Unit Target) {
             if (Behaviours.ContainsKey(Type))
                 Behaviours[Type].SetTarget(Target);
+        }
+
+        public void SetGroupTarget(List<Unit> Targets) {
+            Alignment Alignment = (Alignment)Behaviours[SteeringType.Alignment];
+            Alignment.Targets = Targets;
+
+            Cohesion Cohesion = (Cohesion)Behaviours[SteeringType.Cohesion];
+            Cohesion.Targets = Targets;
+
+            Separation Separation = (Separation)Behaviours[SteeringType.Separation];
+            Separation.Targets = Targets;
         }
 
         public void SetSteeringWeight(SteeringType Type, int Weight) {
@@ -175,6 +207,20 @@ namespace RTSGame {
 
             Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, Transform.Rotation, 
                 new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, Flip, Sprite.Layer);
+
+
+            // Draw Velocity Vector
+            if (DrawDebugVelocity && Body.Velocity.Length() > 0) {
+                Vector2 Point2 = Body.Velocity;
+                Point2.Normalize();
+                Batch.DrawLine(Transform.Position, Point2 * 50f + Transform.Position, Color.Coral);
+            }
+
+            // Draw Interior and Exterior radiuses
+            if (DrawDebugRadiuses) {
+                Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius / 2f), 16, Color.Coral);
+                Batch.DrawCircle(new CircleF(Transform.Position, Body.ExteriorRadius / 2f), 32, Color.Aquamarine);
+            }
         }
 
         public void DestroyUnit(World World) {

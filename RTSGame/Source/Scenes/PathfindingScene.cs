@@ -28,9 +28,7 @@ namespace RTSGame {
         private bool DrawDebugGrid;
         private Texture2D DebugGridTexture;
 
-        public PathfindingScene(MainGame MainGame) : base(MainGame) {
-
-        }
+        public PathfindingScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
             // Reset physics world

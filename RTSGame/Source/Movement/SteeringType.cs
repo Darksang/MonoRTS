@@ -15,6 +15,11 @@
         LookWhereYouGoing,
         PathFollowing,
         Pursue,
-        Wander
+        Wander,
+
+        // Group Steerings
+        Alignment,
+        Cohesion,
+        Separation
     }
 }

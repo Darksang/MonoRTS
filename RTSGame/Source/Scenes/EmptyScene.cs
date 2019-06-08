@@ -8,9 +8,7 @@ namespace RTSGame {
 
     public class EmptyScene : Scene {
 
-        public EmptyScene(MainGame MainGame) : base(MainGame) {
-            
-        }
+        public EmptyScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
             // Reset physics world
