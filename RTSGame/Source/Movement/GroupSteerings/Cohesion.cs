@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace RTSGame {
 
-    public class Cohesion : SteeringBehaviour {
+    public class Cohesion : Seek {
 
         // Holds group of targets
         public List<Unit> Targets;
@@ -15,7 +15,7 @@ namespace RTSGame {
         // Create a Cohesion behaviour
         public Cohesion() : base() {
             Targets = new List<Unit>();
-            Threshold = 100f;
+            Threshold = 1000f;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -24,25 +24,25 @@ namespace RTSGame {
 
             // Loop through each target
             foreach (Unit U in Targets) {
+                if (U == Unit)
+                    continue;
                 // Check if the target is close
                 Vector2 Direction = U.Transform.Position - Unit.Transform.Position;
                 float Distance = Direction.Length();
 
-                if (Distance < Threshold)
+                if (Distance > Threshold)
                     continue;
 
                 CenterOfMass += U.Transform.Position;
                 Count++;
             }
 
-            if (Count > 0) {
-                CenterOfMass /= Count;
-            }
+            if (Count == 0)
+                return new Steering();
 
-            Steering Result = new Steering();
-            Result.Linear = CenterOfMass;
+            CenterOfMass /= Count;
 
-            return Result;
+            return GetSteering(Unit, CenterOfMass);
         }
 
         // TODO: Set group of targets?

@@ -14,7 +14,7 @@ namespace RTSGame {
         // Create n Alignment behaviour
         public Alignment() : base() {
             Targets = new List<Unit>();
-            Threshold = 100f;
+            Threshold = 1000f;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -23,6 +23,8 @@ namespace RTSGame {
 
             // Loop through each target
             foreach (Unit U in Targets) {
+                if (U == Unit)
+                    continue;
                 // Check if the target is close
                 Vector2 Direction = U.Transform.Position - Unit.Transform.Position;
                 float Distance = Direction.Length();

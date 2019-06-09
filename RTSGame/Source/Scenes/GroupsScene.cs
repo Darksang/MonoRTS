@@ -39,17 +39,41 @@ namespace RTSGame {
             SelectedUnits = new List<Unit>();
             Selecting = false;
 
-            // TESTING
+            // Unit 1
             Sprite S = new Sprite(Game.Sprites["Stump"]);
-            Unit U = new Unit("Test", S, World);
-            U.Transform.Position = new Vector2(0f, 0f);
-            U.Collider.Body.Position = ConvertUnits.ToSimUnits(U.Transform.Position);
+            Unit U1 = new Unit("Unit 1", S, World);
+            U1.Transform.Position = new Vector2(0f, 0f);
+            U1.Collider.Body.Position = ConvertUnits.ToSimUnits(U1.Transform.Position);
+            U1.DrawDebugVelocity = true;
 
-            U.AddSteering(SteeringType.Alignment);
-            U.AddSteering(SteeringType.Cohesion);
-            U.AddSteering(SteeringType.Separation);
+            U1.AddSteering(SteeringType.Alignment);
+            U1.AddSteering(SteeringType.Cohesion);
+            U1.AddSteering(SteeringType.Separation);
+            U1.AddSteering(SteeringType.Wander);
 
-            Units.Add(U);
+            Unit U2 = new Unit("Unit 2", S, World);
+            U2.Transform.Position = new Vector2(120f, 120f);
+            U2.Collider.Body.Position = ConvertUnits.ToSimUnits(U2.Transform.Position);
+            U2.DrawDebugVelocity = true;
+
+            U2.AddSteering(SteeringType.Alignment);
+            U2.AddSteering(SteeringType.Cohesion);
+            U2.AddSteering(SteeringType.Separation);
+            U2.AddSteering(SteeringType.Wander);
+
+            Unit U3 = new Unit("Unit 3", S, World);
+            U3.Transform.Position = new Vector2(-120f, -50f);
+            U3.Collider.Body.Position = ConvertUnits.ToSimUnits(U2.Transform.Position);
+            U3.DrawDebugVelocity = true;
+
+            U3.AddSteering(SteeringType.Alignment);
+            U3.AddSteering(SteeringType.Cohesion);
+            U3.AddSteering(SteeringType.Separation);
+            U3.AddSteering(SteeringType.Wander);
+
+            Units.Add(U1);
+            Units.Add(U2);
+            Units.Add(U3);
         }
 
         public override void Update(GameTime GameTime) {
