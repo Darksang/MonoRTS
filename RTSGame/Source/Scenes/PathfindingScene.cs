@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,6 +22,12 @@ namespace RTSGame {
 
         // Pathfinding
         private Grid PathfindingGrid;
+        private Pathfinding Pathfinder;
+
+        // Pathfinding test
+        private Vector2 Start;
+        private Vector2 End;
+        private Path Path;
 
         // Debug stuff
         private bool DrawDebugGrid;
@@ -48,33 +53,42 @@ namespace RTSGame {
 
             // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
             PathfindingGrid = new Grid(Map.Width, Map.Height, Map.TileHeight);
+            Pathfinder = new Pathfinding(PathfindingGrid);
 
-            Sprite S = new Sprite(Game.Sprites["Stump"]);
-            Unit U = new Unit("Test", S, World);
-            U.Transform.Position = new Vector2(200f, 200f);
-            U.Transform.Scale = new Vector2(0.75f, 0.75f);
-            Units.Add(U);
+            Start = new Vector2(16f, 16f);
+            End = new Vector2(48f, 48f);
+            Path = new Path();
+
+            Path = Pathfinder.FindPath(Start, End);
 
             // Debug
-            DrawDebugGrid = false;
+            DrawDebugGrid = true;
             DebugGridTexture = new Texture2D(Game.GraphicsDevice, 1, 1);
             DebugGridTexture.SetData(new Color[] { Color.White });
         }
 
         public override void Update(GameTime GameTime) {
-            // TODO: Clip camera to tilemap (using BoundingRectangle)
-
             // Switch debug draw with D
             if (!ImGui.GetIO().WantCaptureKeyboard) {
                 if (Game.KeyboardState.IsKeyDown(Keys.D) && Game.PreviousKeyboardState.IsKeyUp(Keys.D))
                     DrawDebugGrid = !DrawDebugGrid;
             }
 
-            // Click on a tile to view it's Node coordinate
+            // Calculate a path clicking
             if (!ImGui.GetIO().WantCaptureMouse) {
+                // Change end position for pathfinding
                 if (Game.MouseState.LeftButton == ButtonState.Pressed && Game.PreviousMouseState.LeftButton == ButtonState.Released) {
                     Vector2 MouseWorldCoords = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
-                    Console.WriteLine("Grid Node: " + PathfindingGrid.WorldToNode(MouseWorldCoords));
+                    End = MouseWorldCoords;
+
+                    // Calculate path
+                    Path = Pathfinder.FindPath(Start, End);
+                }
+
+                // Change start position for pathfinding
+                if (Game.MouseState.RightButton == ButtonState.Pressed && Game.PreviousMouseState.RightButton == ButtonState.Released) {
+                    Vector2 MouseWorldCoords = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
+                    Start = MouseWorldCoords;
                 }
             }
 
@@ -106,8 +120,23 @@ namespace RTSGame {
 
                 // Draw Nodes
                 for (int x = 0; x < Map.Width; x++) {
-                    for (int y = 0; y < Map.Height; y++)
-                        Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Black, 2);
+                    for (int y = 0; y < Map.Height; y++) {
+                        if (PathfindingGrid.Nodes[x, y].Walkable)
+                            Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Black, 3);
+                        else
+                            Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Red, 3);
+                    }
+                }
+
+                // Draw calculated Path
+                Vector2 Current = Vector2.Zero;
+                foreach (Vector2 P in Path.Positions) {
+                    if (Current != Vector2.Zero) {
+                        Game.SpriteBatch.DrawLine(P, Current, Color.Green, 2f);
+                        Current = P;
+                    }
+
+                    Current = P;
                 }
             }
 

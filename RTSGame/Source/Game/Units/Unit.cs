@@ -27,6 +27,10 @@ namespace RTSGame {
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
+        // Target position Unit is ordered to go
+        private Vector2 TargetPosition;
+        private bool HasToMove;
+
         // Draw debug flags
         public bool DrawDebugVelocity { get; set; }
         public bool DrawDebugRadiuses { get; set; }
@@ -43,6 +47,9 @@ namespace RTSGame {
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
 
             Selected = false;
+
+            TargetPosition = new Vector2();
+            HasToMove = false;
 
             DrawDebugVelocity = false;
             DrawDebugRadiuses = false;
@@ -76,6 +83,13 @@ namespace RTSGame {
                     Body.Velocity = new Vector2(0f, 0f);
                     Body.RotationVelocity = 0f;
                 }
+
+                // Check if the Unit is at the target position
+                if (HasToMove && Transform.Position.EqualsWithTolerence(TargetPosition, 0.1f)) {
+                    HasToMove = false;
+                    MoveToPosition Move = (MoveToPosition)Behaviours[SteeringType.MoveToPosition];
+                    Move.Weight = 0;
+                }
             }
         }
 
@@ -103,6 +117,17 @@ namespace RTSGame {
                 return (float)Math.Atan2(Body.Velocity.Y, Body.Velocity.X);
 
             return Transform.Rotation;
+        }
+
+        // Order the Unit to move to a specific position in the world
+        public void MoveToPosition(Vector2 Position) {
+            if (Behaviours.ContainsKey(SteeringType.MoveToPosition)) {
+                MoveToPosition Move = (MoveToPosition)Behaviours[SteeringType.MoveToPosition];
+                Move.WorldPosition = Position;
+                Move.Weight = 1;
+                HasToMove = true;
+                TargetPosition = Position;
+            }
         }
 
         // Adds a specific Steering if it's not already contained TODO: Add all SteeringTypes
@@ -143,6 +168,10 @@ namespace RTSGame {
 
                     case SteeringType.LookWhereYouGoing:
                         Behaviours.Add(Type, new LookWhereYouGoing());
+                        break;
+
+                    case SteeringType.MoveToPosition:
+                        Behaviours.Add(Type, new MoveToPosition());
                         break;
 
                     case SteeringType.Pursue:
@@ -218,7 +247,7 @@ namespace RTSGame {
 
             // Draw Interior and Exterior radiuses
             if (DrawDebugRadiuses) {
-                Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius / 2f), 16, Color.Coral);
+                Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius / 2f), 32, Color.Coral);
                 Batch.DrawCircle(new CircleF(Transform.Position, Body.ExteriorRadius / 2f), 32, Color.Aquamarine);
             }
         }

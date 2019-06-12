@@ -11,14 +11,12 @@ namespace RTSGame {
         public List<Unit> Targets;
         // Holds the threshold to take action
         public float Threshold { get; set; }
-        // Holds the constant coefficient of decay for the inverse square law force
-        public float DecayCoefficient { get; set; }
 
         // Create a Separation behaviour
         public Separation() : base() {
             Targets = new List<Unit>();
             Threshold = 300f;
-            DecayCoefficient = 30000f;
+            Type = SteeringType.Separation;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -34,7 +32,6 @@ namespace RTSGame {
 
                 if (Distance < Threshold) {
                     // Calculate the strength of repulsion
-                    //float Strength = Math.Min(DecayCoefficient / (Distance * Distance), Unit.Body.MaxAcceleration);
                     float Strength = Unit.Body.MaxAcceleration * (Threshold - Distance) / Threshold;
                     // Add the acceleration
                     Direction.Normalize(); 

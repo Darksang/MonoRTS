@@ -22,6 +22,10 @@ namespace RTSGame {
         private Vector2 SelectionStart;
         private bool Selecting;
 
+        // Formation
+        private DefensiveCirclePattern FormationPattern;
+        private FormationManager FormationManager;
+
         public GroupsScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
@@ -39,8 +43,11 @@ namespace RTSGame {
             SelectedUnits = new List<Unit>();
             Selecting = false;
 
-            // Unit 1
-            Sprite S = new Sprite(Game.Sprites["Stump"]);
+            FormationPattern = new DefensiveCirclePattern(50f);
+            FormationManager = new FormationManager(FormationPattern);
+
+            /* Unit 1
+            Sprite S = new Sprite(Game.Sprites["Ghost"]);
             Unit U1 = new Unit("Unit 1", S, World);
             U1.Transform.Position = new Vector2(0f, 0f);
             U1.Collider.Body.Position = ConvertUnits.ToSimUnits(U1.Transform.Position);
@@ -49,7 +56,9 @@ namespace RTSGame {
             U1.AddSteering(SteeringType.Alignment);
             U1.AddSteering(SteeringType.Cohesion);
             U1.AddSteering(SteeringType.Separation);
-            U1.AddSteering(SteeringType.Wander);
+            U1.AddSteering(SteeringType.MoveToPosition);
+            U1.SetSteeringWeight(SteeringType.Separation, 4);
+            //U1.AddSteering(SteeringType.Wander);
 
             Unit U2 = new Unit("Unit 2", S, World);
             U2.Transform.Position = new Vector2(120f, 120f);
@@ -59,21 +68,25 @@ namespace RTSGame {
             U2.AddSteering(SteeringType.Alignment);
             U2.AddSteering(SteeringType.Cohesion);
             U2.AddSteering(SteeringType.Separation);
-            U2.AddSteering(SteeringType.Wander);
+            U2.AddSteering(SteeringType.MoveToPosition);
+            U2.SetSteeringWeight(SteeringType.Separation, 4);
+            //U2.AddSteering(SteeringType.Wander);
 
             Unit U3 = new Unit("Unit 3", S, World);
             U3.Transform.Position = new Vector2(-120f, -50f);
-            U3.Collider.Body.Position = ConvertUnits.ToSimUnits(U2.Transform.Position);
+            U3.Collider.Body.Position = ConvertUnits.ToSimUnits(U3.Transform.Position);
             U3.DrawDebugVelocity = true;
 
             U3.AddSteering(SteeringType.Alignment);
             U3.AddSteering(SteeringType.Cohesion);
             U3.AddSteering(SteeringType.Separation);
-            U3.AddSteering(SteeringType.Wander);
+            U3.AddSteering(SteeringType.MoveToPosition);
+            U3.SetSteeringWeight(SteeringType.Separation, 4);
+            //U3.AddSteering(SteeringType.Wander);
 
             Units.Add(U1);
             Units.Add(U2);
-            Units.Add(U3);
+            Units.Add(U3); */
         }
 
         public override void Update(GameTime GameTime) {
@@ -82,12 +95,32 @@ namespace RTSGame {
             // Process input
             AreaSelection();
 
-            // TODO: How to make a group flock and stop flocking?
+            /*if (!ImGui.GetIO().WantCaptureKeyboard) {
+                if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyDown(Keys.F)) {
+                    if (SelectedUnits.Count > 0)
+                        foreach (Unit U in SelectedUnits)
+                            FormationManager.AddUnit(U);
+                }
+            } */
+
+            /* Move selected units with right click
+            if (!ImGui.GetIO().WantCaptureMouse) {
+                if (Game.MouseState.RightButton == ButtonState.Pressed && Game.PreviousMouseState.RightButton == ButtonState.Released) {
+                    Vector2 WorldPosition = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
+                    if (SelectedUnits.Count > 0) {
+                        foreach (Unit U in SelectedUnits) {
+                            U.MoveToPosition(WorldPosition);
+                        }
+                    }
+                }
+            } */
+
+            /* TODO: How to make a group flock and stop flocking?
             if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyUp(Keys.F)) {
                 foreach (Unit U in SelectedUnits) {
                     U.SetGroupTarget(SelectedUnits);
                 }
-            }
+            } */
 
             // Update units
             foreach (Unit U in Units)

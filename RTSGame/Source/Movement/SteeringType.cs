@@ -16,6 +16,7 @@
         PathFollowing,
         Pursue,
         Wander,
+        MoveToPosition,
 
         // Group Steerings
         Alignment,

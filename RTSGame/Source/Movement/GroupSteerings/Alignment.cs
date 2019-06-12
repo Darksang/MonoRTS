@@ -15,6 +15,7 @@ namespace RTSGame {
         public Alignment() : base() {
             Targets = new List<Unit>();
             Threshold = 1000f;
+            Type = SteeringType.Alignment;
         }
 
         public override Steering GetSteering(Unit Unit) {

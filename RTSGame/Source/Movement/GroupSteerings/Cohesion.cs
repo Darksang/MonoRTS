@@ -16,6 +16,7 @@ namespace RTSGame {
         public Cohesion() : base() {
             Targets = new List<Unit>();
             Threshold = 1000f;
+            Type = SteeringType.Cohesion;
         }
 
         public override Steering GetSteering(Unit Unit) {

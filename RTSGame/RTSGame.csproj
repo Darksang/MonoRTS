@@ -55,6 +55,7 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Source\Movement\DelegateSteerings\MoveToPosition.cs" />
     <Compile Include="Source\Movement\Formations\FormationManager.cs" />
     <Compile Include="Source\Movement\Formations\FormationPattern.cs" />
     <Compile Include="Source\Movement\Formations\Patterns\DefensiveCirclePattern.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Source\Movement\SteeringType.cs" />
     <Compile Include="Source\Pathfinding\Grid.cs" />
     <Compile Include="Source\Pathfinding\Node.cs" />
+    <Compile Include="Source\Pathfinding\Path.cs" />
     <Compile Include="Source\Pathfinding\Pathfinding.cs" />
     <Compile Include="Source\Scenes\GroupsScene.cs" />
     <Compile Include="Source\Scenes\PathfindingScene.cs" />
@@ -200,7 +202,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Source\AI\" />
-    <Folder Include="Source\Movement\GroupSteerings\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

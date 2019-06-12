@@ -52,6 +52,7 @@ namespace RTSGame {
                 Slots.Add(NewSlot);
 
                 // Update the slots assignments
+                Pattern.NumberOfSlots++;
                 UpdateSlotAssignments();
 
                 return true;

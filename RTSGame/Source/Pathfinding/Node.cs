@@ -7,19 +7,42 @@ namespace RTSGame {
         public bool Walkable;
         // This Node's position in the game world
         public Vector2 WorldPosition;
-        // Cost associated with the Node
-        public float Cost;
+        // Costs of the Node
+        public float G;
+        public float H;
+        public float F { get { return G + H; } }
 
-        public Node(bool Walkable, Vector2 WorldPosition) {
+        // Position of the Node in the grid
+        public int GridX;
+        public int GridY;
+
+        // Parent of the Node in the calculated Path
+        public Node Parent;
+
+        public Node(bool Walkable, Vector2 WorldPosition, int GridX, int GridY) {
             this.Walkable = Walkable;
             this.WorldPosition = WorldPosition;
-            Cost = 1f;
+
+            G = 1f;
+            H = 0f;
+
+            this.GridX = GridX;
+            this.GridY = GridY;
+
+            Parent = null;
         }
 
-        public Node(bool Walkable, Vector2 WorldPosition, float Cost) {
+        public Node(bool Walkable, Vector2 WorldPosition, int GridX, int GridY, float Cost) {
             this.Walkable = Walkable;
             this.WorldPosition = WorldPosition;
-            this.Cost = Cost;
+
+            G = Cost;
+            H = 0f;
+
+            this.GridX = GridX;
+            this.GridY = GridY;
+
+            Parent = null;
         }
     }
 }
