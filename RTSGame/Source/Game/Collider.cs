@@ -11,6 +11,9 @@ namespace RTSGame {
         // Defines the shape of the body
         public Fixture Fixture { get; set; }
 
+        // Pointer to the physics world
+        public World World { get; set; }
+
         public Collider() {
             Body = null;
             Fixture = null;
@@ -25,6 +28,10 @@ namespace RTSGame {
             Body = BodyFactory.CreateRectangle(World, Width, Height, 1f, Unit);
             // Position the Body in the World according to Transform in sim units
             Body.Position = ConvertUnits.ToSimUnits(Unit.Transform.Position);
+
+            Fixture = Body.FixtureList[0];
+
+            this.World = World;
         }
     }
 }

@@ -13,10 +13,10 @@
         Evade,
         Face,
         LookWhereYouGoing,
+        ObstacleAvoidance,
         PathFollowing,
         Pursue,
         Wander,
-        MoveToPosition,
 
         // Group Steerings
         Alignment,

@@ -97,7 +97,9 @@ namespace RTSGame {
 
         private void InitializeScenes() {
             Scenes.Add("Empty Scene", new EmptyScene(this));
+            Scenes.Add("Main Scenario", new MainScene(this));
             Scenes.Add("Steering Test Scene", new SteeringTestScene(this));
+            Scenes.Add("Collision Avoidance Scene", new CollisionScene(this));
             Scenes.Add("Pathfinding Scene", new PathfindingScene(this));
             Scenes.Add("Groups Scene", new GroupsScene(this));
 
@@ -128,10 +130,11 @@ namespace RTSGame {
             Sprites.Add("Ghost", Content.Load<Texture2D>("Sprites//Ghost"));
 
             // Load fonts
-            Fonts.Add("Consolas", Content.Load<SpriteFont>("Fonts//Consolas"));
+            Fonts.Add("Arial", Content.Load<SpriteFont>("Fonts//Arial"));
 
             // Load tilemaps
             Maps.Add("PathfindingMap", Content.Load<TiledMap>("TileMaps//PathfindingMap"));
+            Maps.Add("MainMap", Content.Load<TiledMap>("TileMaps//MainMap"));
         }
 
         // Called once per game, is the place to unload game-specific content (non ContentManager)

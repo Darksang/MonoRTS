@@ -9,6 +9,9 @@ using FarseerPhysics.Dynamics;
 
 namespace RTSGame {
 
+    // TODO: When flocking, multiple units want to get to the same position
+    // and since they're constantly separating, they never get there and won't stop ever
+
     public class Unit {
         // Name of the Unit
         public string Name { get; set; }
@@ -27,10 +30,6 @@ namespace RTSGame {
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
-        // Target position Unit is ordered to go
-        private Vector2 TargetPosition;
-        private bool HasToMove;
-
         // Draw debug flags
         public bool DrawDebugVelocity { get; set; }
         public bool DrawDebugRadiuses { get; set; }
@@ -48,15 +47,13 @@ namespace RTSGame {
 
             Selected = false;
 
-            TargetPosition = new Vector2();
-            HasToMove = false;
-
             DrawDebugVelocity = false;
             DrawDebugRadiuses = false;
         }
 
         public void Update(float DeltaTime) {
             // TODO: Find out how to make the character stop slowly when there are no Steerings working
+
             // Check if the Unit is able to move
             if (Body.CanMove) {
                 // Compute final steering
@@ -82,13 +79,6 @@ namespace RTSGame {
                 } else {
                     Body.Velocity = new Vector2(0f, 0f);
                     Body.RotationVelocity = 0f;
-                }
-
-                // Check if the Unit is at the target position
-                if (HasToMove && Transform.Position.EqualsWithTolerence(TargetPosition, 0.1f)) {
-                    HasToMove = false;
-                    MoveToPosition Move = (MoveToPosition)Behaviours[SteeringType.MoveToPosition];
-                    Move.Weight = 0;
                 }
             }
         }
@@ -119,18 +109,15 @@ namespace RTSGame {
             return Transform.Rotation;
         }
 
-        // Order the Unit to move to a specific position in the world
-        public void MoveToPosition(Vector2 Position) {
-            if (Behaviours.ContainsKey(SteeringType.MoveToPosition)) {
-                MoveToPosition Move = (MoveToPosition)Behaviours[SteeringType.MoveToPosition];
-                Move.WorldPosition = Position;
-                Move.Weight = 1;
-                HasToMove = true;
-                TargetPosition = Position;
+        // TODO: Is there a better way to do this? Sets a Path to follow using PathFollowing steering
+        public void SetPath(Path Path) {
+            if (Behaviours.ContainsKey(SteeringType.PathFollowing)) {
+                PathFollowing B = (PathFollowing)Behaviours[SteeringType.PathFollowing];
+                B.SetPath(Path);
             }
         }
 
-        // Adds a specific Steering if it's not already contained TODO: Add all SteeringTypes
+        // Adds a specific Steering if it's not already contained
         public void AddSteering(SteeringType Type) {
             if (!Behaviours.ContainsKey(Type)) {
                 switch(Type) {
@@ -170,8 +157,14 @@ namespace RTSGame {
                         Behaviours.Add(Type, new LookWhereYouGoing());
                         break;
 
-                    case SteeringType.MoveToPosition:
-                        Behaviours.Add(Type, new MoveToPosition());
+                    case SteeringType.ObstacleAvoidance:
+                        ObstacleAvoidance O = new ObstacleAvoidance();
+                        O.World = Collider.World;
+                        Behaviours.Add(Type, O);
+                        break;
+
+                    case SteeringType.PathFollowing:
+                        Behaviours.Add(Type, new PathFollowing());
                         break;
 
                     case SteeringType.Pursue:
@@ -210,6 +203,7 @@ namespace RTSGame {
                 Behaviours[Type].SetTarget(Target);
         }
 
+        // TODO: This doesn't work well
         public void SetGroupTarget(List<Unit> Targets) {
             Alignment Alignment = (Alignment)Behaviours[SteeringType.Alignment];
             Alignment.Targets = Targets;
@@ -227,6 +221,7 @@ namespace RTSGame {
         }
 
         public void Draw(SpriteBatch Batch) {
+            // TODO: When the Unit stops moving, it always faces left, instead of keeping the facing it had last
             SpriteEffects Flip = SpriteEffects.None;
 
             if (Body.Velocity.X >= 0.01f)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using MonoGame.Extended.Tiled;
+
 using Microsoft.Xna.Framework;
 
 namespace RTSGame {
@@ -13,18 +15,32 @@ namespace RTSGame {
         // Size of each tile of the grid (We assume same Height/Width)
         public int TileSize;
 
-        public Grid(int Width, int Height, int TileSize) {
-            Nodes = new Node[Width, Height];
+        public Grid(TiledMap Map) {
+            Nodes = new Node[Map.Width, Map.Height];
 
-            GridWidth = Width;
-            GridHeight = Height;
+            GridWidth = Map.Width;
+            GridHeight = Map.Height;
 
-            this.TileSize = TileSize;
+            TileSize = Map.TileHeight;
 
-            for (int x = 0; x < Width; x++) {
-                for (int y = 0; y < Height; y++) {
-                    // TODO: Check tile to see if it's walkable or not
-                    Nodes[x, y] = new Node(true, new Vector2((x * TileSize / 2f) + (x + 1) * (TileSize / 2f), (y * TileSize / 2f) + (y + 1) * (TileSize / 2f)), x, y);
+            for (int x = 0; x < GridWidth; x++) {
+                for (int y = 0; y < GridHeight; y++) {
+                    // Check all Layers for this tile
+                    bool Walkable = false;
+
+                    foreach (TiledMapTileLayer L in Map.TileLayers) {
+                        L.TryGetTile(x, y, out TiledMapTile? Tile);
+                        int ID = Tile.Value.GlobalIdentifier;
+
+                        if (ID == 311)
+                            Walkable = true; // Grass
+                        else if (ID == 526 || ID == 527 || ID == 528)
+                            Walkable = true; // Bridge
+                        else if (ID == 6 || ID == 7 || ID == 8 || ID == 38 || ID == 39 || ID == 40 || ID == 70 || ID == 71 || ID == 72 || ID == 102 || ID == 103 || ID == 104 || ID == 134 || ID == 135 || ID == 136)
+                            Walkable = false; // Mountain
+                    }
+
+                    Nodes[x, y] = new Node(Walkable, new Vector2((x * TileSize / 2f) + (x + 1) * (TileSize / 2f), (y * TileSize / 2f) + (y + 1) * (TileSize / 2f)), x, y);
                 }
             }
         }
@@ -51,7 +67,7 @@ namespace RTSGame {
             return Neighbours;
         }
 
-        // Returns the Node associated to a world position
+        // Returns the Node associated to a world position. Returns null if it's outside the grid.
         public Node WorldToNode(Vector2 WorldPosition) {
             Vector2 NodePosition = new Vector2();
 

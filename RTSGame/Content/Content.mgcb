@@ -14,12 +14,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/Consolas.spritefont
+#begin Fonts/Arial.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/Consolas.spritefont
+/build:Fonts/Arial.spritefont
 
 #begin Shaders/Outline.fx
 /importer:EffectImporter
@@ -63,7 +63,17 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Stump.png
 
-#begin TileMaps/hyptosis_tile-art-batch-1.png
+#begin TileMaps/MainMap.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:TileMaps/MainMap.tmx
+
+#begin TileMaps/PathfindingMap.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:TileMaps/PathfindingMap.tmx
+
+#begin TileMaps/terrain_atlas.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -73,10 +83,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:TileMaps/hyptosis_tile-art-batch-1.png
-
-#begin TileMaps/PathfindingMap.tmx
-/importer:TiledMapImporter
-/processor:TiledMapProcessor
-/build:TileMaps/PathfindingMap.tmx
+/build:TileMaps/terrain_atlas.png
 

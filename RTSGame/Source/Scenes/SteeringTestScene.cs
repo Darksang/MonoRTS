@@ -31,7 +31,6 @@ namespace RTSGame {
         public override void Update(GameTime GameTime) {
             float DeltaTime = (float)GameTime.ElapsedGameTime.TotalSeconds;
 
-            // Update scene
             foreach (Unit U in Units)
                 U.Update(DeltaTime);
 
@@ -56,8 +55,8 @@ namespace RTSGame {
 
             foreach (Unit U in Units)
                 // Draw Unit name on top of it
-                Game.SpriteBatch.DrawString(Game.Fonts["Consolas"], U.Name, 
-                    new Vector2(U.Transform.Position.X - (U.Sprite.SpriteTexture.Width / 2f), U.Transform.Position.Y - U.Sprite.SpriteTexture.Height / 2f - 15f), Color.Black);
+                Game.SpriteBatch.DrawString(Game.Fonts["Arial"], U.Name, 
+                    new Vector2(U.Transform.Position.X - (U.Sprite.SpriteTexture.Width / 2f), U.Transform.Position.Y - U.Sprite.SpriteTexture.Height / 2f - 20f), Color.Black);
 
             Game.SpriteBatch.End();
 

@@ -13,7 +13,7 @@ using FarseerPhysics.Dynamics;
 using ImGuiNET;
 
 namespace RTSGame {
-
+    // TODO: Add not walkable tiles to see how it calculates the path
     public class PathfindingScene : Scene {
         // Tilemap of the scene
         private TiledMap Map;
@@ -25,9 +25,9 @@ namespace RTSGame {
         private Pathfinding Pathfinder;
 
         // Pathfinding test
-        private Vector2 Start;
         private Vector2 End;
         private Path Path;
+        private Unit Unit;
 
         // Debug stuff
         private bool DrawDebugGrid;
@@ -44,22 +44,32 @@ namespace RTSGame {
             Units = new List<Unit>();
 
             // Reset camera
-            Game.Camera.Position = new Vector2(0f, 0f);
-            Game.Camera.Zoom = 1f;
+            Game.Camera.Position = new Vector2(-300f, -150f);
+            Game.Camera.Zoom = 1.5f;
 
             // Load map and its renderer
             Map = Game.Maps["PathfindingMap"];
             MapRenderer = new TiledMapRenderer(Game.GraphicsDevice);
 
             // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
-            PathfindingGrid = new Grid(Map.Width, Map.Height, Map.TileHeight);
+            PathfindingGrid = new Grid(Map);
             Pathfinder = new Pathfinding(PathfindingGrid);
 
-            Start = new Vector2(16f, 16f);
-            End = new Vector2(48f, 48f);
+            End = new Vector2(400f, 240f);
             Path = new Path();
 
-            Path = Pathfinder.FindPath(Start, End);
+            // Test Unit
+            Sprite S = new Sprite(Game.Sprites["Ghost"]);
+            Unit = new Unit("Pathfinder", S, World);
+            Unit.Transform.Scale = new Vector2(0.5f, 0.5f);
+            Unit.Body.MaxVelocity = 50f;
+
+            Unit.AddSteering(SteeringType.PathFollowing);
+
+            Path = Pathfinder.FindPath(Unit.Transform.Position, End);
+            Unit.SetPath(Path);
+
+            Units.Add(Unit);
 
             // Debug
             DrawDebugGrid = true;
@@ -68,13 +78,15 @@ namespace RTSGame {
         }
 
         public override void Update(GameTime GameTime) {
+            float DeltaTime = (float)GameTime.ElapsedGameTime.TotalSeconds;
+
             // Switch debug draw with D
             if (!ImGui.GetIO().WantCaptureKeyboard) {
                 if (Game.KeyboardState.IsKeyDown(Keys.D) && Game.PreviousKeyboardState.IsKeyUp(Keys.D))
                     DrawDebugGrid = !DrawDebugGrid;
             }
 
-            // Calculate a path clicking
+            // Calculate a path using mouse clicks
             if (!ImGui.GetIO().WantCaptureMouse) {
                 // Change end position for pathfinding
                 if (Game.MouseState.LeftButton == ButtonState.Pressed && Game.PreviousMouseState.LeftButton == ButtonState.Released) {
@@ -82,17 +94,16 @@ namespace RTSGame {
                     End = MouseWorldCoords;
 
                     // Calculate path
-                    Path = Pathfinder.FindPath(Start, End);
-                }
-
-                // Change start position for pathfinding
-                if (Game.MouseState.RightButton == ButtonState.Pressed && Game.PreviousMouseState.RightButton == ButtonState.Released) {
-                    Vector2 MouseWorldCoords = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
-                    Start = MouseWorldCoords;
+                    Path = Pathfinder.FindPath(Unit.Transform.Position, End);
+                    Unit.SetPath(Path);
                 }
             }
 
             MapRenderer.Update(Map, GameTime);
+
+            // Update units
+            foreach (Unit U in Units)
+                U.Update(DeltaTime);
 
             // Update physics
             World.Step(1f / 60f);
@@ -110,19 +121,19 @@ namespace RTSGame {
                 // Draw Debug Grid
                 for (int x = 0; x <= Map.Width; x++) {
                     Rectangle Rect = new Rectangle(0 + x * Map.TileWidth, 0, 1, Map.WidthInPixels);
-                    Game.SpriteBatch.Draw(DebugGridTexture, Rect, Color.Red);
+                    Game.SpriteBatch.Draw(DebugGridTexture, Rect, Color.Black);
                 }
 
                 for (int y = 0; y <= Map.Height; y++) {
                     Rectangle Rect = new Rectangle(0, 0 + y * Map.TileWidth, Map.HeightInPixels, 1);
-                    Game.SpriteBatch.Draw(DebugGridTexture, Rect, Color.Red);
+                    Game.SpriteBatch.Draw(DebugGridTexture, Rect, Color.Black);
                 }
 
                 // Draw Nodes
                 for (int x = 0; x < Map.Width; x++) {
                     for (int y = 0; y < Map.Height; y++) {
                         if (PathfindingGrid.Nodes[x, y].Walkable)
-                            Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Black, 3);
+                            Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Blue, 3);
                         else
                             Game.SpriteBatch.DrawPoint(PathfindingGrid.Nodes[x, y].WorldPosition, Color.Red, 3);
                     }
@@ -132,7 +143,7 @@ namespace RTSGame {
                 Vector2 Current = Vector2.Zero;
                 foreach (Vector2 P in Path.Positions) {
                     if (Current != Vector2.Zero) {
-                        Game.SpriteBatch.DrawLine(P, Current, Color.Green, 2f);
+                        Game.SpriteBatch.DrawLine(P, Current, Color.Coral, 2f);
                         Current = P;
                     }
 
@@ -140,7 +151,6 @@ namespace RTSGame {
                 }
             }
 
-            // Draw Units
             foreach (Unit U in Units)
                 U.Draw(Game.SpriteBatch);
 
@@ -155,11 +165,24 @@ namespace RTSGame {
         }
 
         private void DisplayEditor() {
-            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0f, 200f), ImGuiCond.Always);
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(210f, 200f), ImGuiCond.Always);
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(Game.Graphics.PreferredBackBufferWidth - 330f, 20f), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(330f, 90f), ImGuiCond.Always);
             ImGuiWindowFlags Flags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
 
             ImGui.Begin("Pathfinding", Flags);
+
+            Vector4 TextColor = Color.Red.ToVector4();
+
+            ImGui.BulletText("Use"); ImGui.SameLine();
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), "Left Click"); ImGui.SameLine();
+            ImGui.Text("to set the end point.");
+
+            ImGui.Separator();
+
+            float EndX = (float)System.Math.Floor(End.X / PathfindingGrid.TileSize);
+            float EndY = (float)System.Math.Floor(End.Y / PathfindingGrid.TileSize);
+            ImGui.BulletText("End Point: " + End);
+            ImGui.BulletText("End Grid Position: [" + (int)EndX + ", " + (int)EndY + "]");
 
             ImGui.End();
         }

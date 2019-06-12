@@ -55,7 +55,12 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Source\Movement\DelegateSteerings\MoveToPosition.cs" />
+    <Compile Include="Source\AI\State.cs" />
+    <Compile Include="Source\AI\StateMachine.cs" />
+    <Compile Include="Source\AI\States\IdleState.cs" />
+    <Compile Include="Source\Game\Stats.cs" />
+    <Compile Include="Source\Game\Units\MeleeUnit.cs" />
+    <Compile Include="Source\Game\Units\RangedUnit.cs" />
     <Compile Include="Source\Movement\Formations\FormationManager.cs" />
     <Compile Include="Source\Movement\Formations\FormationPattern.cs" />
     <Compile Include="Source\Movement\Formations\Patterns\DefensiveCirclePattern.cs" />
@@ -87,7 +92,9 @@
     <Compile Include="Source\Pathfinding\Node.cs" />
     <Compile Include="Source\Pathfinding\Path.cs" />
     <Compile Include="Source\Pathfinding\Pathfinding.cs" />
+    <Compile Include="Source\Scenes\CollisionScene.cs" />
     <Compile Include="Source\Scenes\GroupsScene.cs" />
+    <Compile Include="Source\Scenes\MainScene.cs" />
     <Compile Include="Source\Scenes\PathfindingScene.cs" />
     <Compile Include="Source\Scenes\Scene.cs" />
     <Compile Include="Source\Scenes\EmptyScene.cs" />
@@ -200,9 +207,7 @@
       <Link>cimgui.dll</Link>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\AI\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <Import Project="..\packages\ImGui.NET.1.70.0\build\net40\ImGui.NET.targets" Condition="Exists('..\packages\ImGui.NET.1.70.0\build\net40\ImGui.NET.targets')" />
