@@ -9,6 +9,8 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Graphics;
 
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
+using PhysicsBody = FarseerPhysics.Dynamics.Body;
 
 using ImGuiNET;
 
@@ -33,6 +35,9 @@ namespace RTSGame {
         private bool DrawDebugGrid;
         private Texture2D DebugGridTexture;
 
+        // TODO: Get rid of this when obstacle avoidance is fixed
+        private Unit Unit2;
+
         public PathfindingScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
@@ -51,6 +56,17 @@ namespace RTSGame {
             Map = Game.Maps["PathfindingMap"];
             MapRenderer = new TiledMapRenderer(Game.GraphicsDevice);
 
+            // Generate map obstacles
+            if (Map.ObjectLayers.Count != 0) {
+                foreach (TiledMapObject O in Map.ObjectLayers[0].Objects) {
+                    // Create a static body in the physics world
+                    PhysicsBody B = BodyFactory.CreateRectangle(World, ConvertUnits.ToSimUnits(O.Size.Width), ConvertUnits.ToSimUnits(O.Size.Height), 1f);
+                    Vector2 Pos = new Vector2(O.Position.X + O.Size.Width / 2f, O.Position.Y + O.Size.Height / 2f);
+                    B.Position = ConvertUnits.ToSimUnits(Pos);
+                    B.FixtureList[0].IsSensor = true;
+                }
+            }
+
             // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
             PathfindingGrid = new Grid(Map);
             Pathfinder = new Pathfinding(PathfindingGrid);
@@ -61,6 +77,8 @@ namespace RTSGame {
             // Test Unit
             Sprite S = new Sprite(Game.Sprites["Ghost"]);
             Unit = new Unit("Pathfinder", S, World);
+            Unit.Transform.Position = new Vector2(50f, 50f);
+            Unit.Collider.Body.Position = ConvertUnits.ToSimUnits(Unit.Transform.Position);
             Unit.Transform.Scale = new Vector2(0.5f, 0.5f);
             Unit.Body.MaxVelocity = 50f;
 
@@ -75,6 +93,18 @@ namespace RTSGame {
             DrawDebugGrid = true;
             DebugGridTexture = new Texture2D(Game.GraphicsDevice, 1, 1);
             DebugGridTexture.SetData(new Color[] { Color.White });
+
+            // Wander Unit
+            Unit2 = new Unit("Wanderer", S, World);
+            Unit2.Transform.Position = new Vector2(100f, 100f);
+            Unit2.Collider.Body.Position = ConvertUnits.ToSimUnits(Unit2.Transform.Position);
+            Unit2.Transform.Scale = new Vector2(0.5f, 0.5f);
+            Unit2.Body.MaxVelocity = 50f;
+
+            Unit2.AddSteering(SteeringType.Wander);
+            Unit2.AddSteering(SteeringType.ObstacleAvoidance);
+
+            Units.Add(Unit2);
         }
 
         public override void Update(GameTime GameTime) {
@@ -149,6 +179,12 @@ namespace RTSGame {
 
                     Current = P;
                 }
+
+                // Draw Unit RayCast
+                ObstacleAvoidance O = (ObstacleAvoidance)Unit2.Behaviours[SteeringType.ObstacleAvoidance];
+                Game.SpriteBatch.DrawLine(Unit2.Transform.Position, O.Ray, Color.Black);
+                if (O.CollisionPosition != Vector2.Zero)
+                    Game.SpriteBatch.DrawPoint(O.CollisionPosition, Color.Pink, 3f);
             }
 
             foreach (Unit U in Units)

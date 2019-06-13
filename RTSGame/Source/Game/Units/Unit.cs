@@ -34,6 +34,9 @@ namespace RTSGame {
         public bool DrawDebugVelocity { get; set; }
         public bool DrawDebugRadiuses { get; set; }
 
+        // Used to control where the Sprite is facing
+        private SpriteEffects Flip;
+
         public Unit(string Name, Sprite Sprite, World World) {
             this.Name = Name;
             Transform = new Transform();
@@ -49,6 +52,8 @@ namespace RTSGame {
 
             DrawDebugVelocity = false;
             DrawDebugRadiuses = false;
+
+            Flip = SpriteEffects.None;
         }
 
         public void Update(float DeltaTime) {
@@ -221,9 +226,7 @@ namespace RTSGame {
         }
 
         public void Draw(SpriteBatch Batch) {
-            // TODO: When the Unit stops moving, it always faces left, instead of keeping the facing it had last
-            SpriteEffects Flip = SpriteEffects.None;
-
+            // Flip the sprite depending on where its going
             if (Body.Velocity.X >= 0.01f)
                 Flip = SpriteEffects.FlipHorizontally;
             else if (Body.Velocity.X <= -0.01f)

@@ -125,9 +125,10 @@ namespace RTSGame {
             Effects.Add("Outline", Content.Load<Effect>("Shaders//Outline"));
 
             // Load sprites
-            Sprites.Add("Player", Content.Load<Texture2D>("Sprites//Player"));
             Sprites.Add("Stump", Content.Load<Texture2D>("Sprites//Stump"));
             Sprites.Add("Ghost", Content.Load<Texture2D>("Sprites//Ghost"));
+            Sprites.Add("Cat", Content.Load<Texture2D>("Sprites//Cat"));
+            Sprites.Add("Healer", Content.Load<Texture2D>("Sprites//Healer"));
 
             // Load fonts
             Fonts.Add("Arial", Content.Load<SpriteFont>("Fonts//Arial"));

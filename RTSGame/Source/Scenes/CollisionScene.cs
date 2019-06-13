@@ -20,6 +20,9 @@ namespace RTSGame {
         private Vector2 StartRay;
         private Vector2 EndRay;
 
+        // Test Unit
+        private Unit Unit;
+
         public CollisionScene(MainGame MainGame) : base(MainGame) { }
 
         public override void Initialize() {
@@ -42,17 +45,17 @@ namespace RTSGame {
             Obstacle.FixtureList[0].IsSensor = true;
 
             // Test Unit
-            Sprite S = new Sprite(Game.Sprites["Stump"]);
-            Unit U = new Unit("Collision Avoid", S, World);
-            U.DrawDebugVelocity = true;
-            U.Body.MaxVelocity = 100f;
-            U.Transform.Position = new Vector2(-500f, 0f);
-            U.Collider.Body.Position = ConvertUnits.ToSimUnits(U.Transform.Position);
+            Sprite S = new Sprite(Game.Sprites["Cat"]);
+            Unit = new Unit("Collision Avoid", S, World);
+            Unit.DrawDebugVelocity = true;
+            Unit.Body.MaxVelocity = 100f;
+            Unit.Transform.Position = new Vector2(-500f, 0f);
+            Unit.Collider.Body.Position = ConvertUnits.ToSimUnits(Unit.Transform.Position);
 
-            U.AddSteering(SteeringType.Wander);
-            U.AddSteering(SteeringType.ObstacleAvoidance);
+            Unit.AddSteering(SteeringType.Wander);
+            Unit.AddSteering(SteeringType.ObstacleAvoidance);
 
-            Units.Add(U);
+            Units.Add(Unit);
         }
 
         public override void Update(GameTime GameTime) {
@@ -104,10 +107,18 @@ namespace RTSGame {
             RectangleF R = new RectangleF(-100f, -100f, 200f, 200f);
             Game.SpriteBatch.DrawRectangle(R, Color.Green);
 
+            // Draw RayCast line
             Game.SpriteBatch.DrawLine(StartRay, EndRay, Color.Coral);
 
+            // Draw Start and End of the Ray
             Game.SpriteBatch.DrawPoint(StartRay, Color.Blue, 3f);
             Game.SpriteBatch.DrawPoint(EndRay, Color.Red, 3f);
+
+            // Draw Unit RayCast
+            ObstacleAvoidance O = (ObstacleAvoidance)Unit.Behaviours[SteeringType.ObstacleAvoidance];
+            Game.SpriteBatch.DrawLine(Unit.Transform.Position, O.Ray, Color.Black);
+            if (O.CollisionPosition != Vector2.Zero)
+                Game.SpriteBatch.DrawPoint(O.CollisionPosition, Color.Pink, 3f);
 
             // Draw Units
             foreach (Unit U in Units)

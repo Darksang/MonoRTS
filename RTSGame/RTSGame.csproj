@@ -59,6 +59,7 @@
     <Compile Include="Source\AI\StateMachine.cs" />
     <Compile Include="Source\AI\States\IdleState.cs" />
     <Compile Include="Source\Game\Stats.cs" />
+    <Compile Include="Source\Game\Units\HealingUnit.cs" />
     <Compile Include="Source\Game\Units\MeleeUnit.cs" />
     <Compile Include="Source\Game\Units\RangedUnit.cs" />
     <Compile Include="Source\Movement\Formations\FormationManager.cs" />

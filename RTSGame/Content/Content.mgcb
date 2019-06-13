@@ -27,6 +27,18 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Outline.fx
 
+#begin Sprites/Cat.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Cat.png
+
 #begin Sprites/Ghost.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -39,7 +51,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Ghost.png
 
-#begin Sprites/Player.png
+#begin Sprites/Healer.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -49,7 +61,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Player.png
+/build:Sprites/Healer.png
 
 #begin Sprites/Stump.png
 /importer:TextureImporter

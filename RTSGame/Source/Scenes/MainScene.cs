@@ -9,6 +9,8 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Graphics;
 
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Factories;
+using PhysicsBody = FarseerPhysics.Dynamics.Body;
 
 using ImGuiNET;
 
@@ -45,6 +47,17 @@ namespace RTSGame {
             // Load map and its renderer
             Map = Game.Maps["MainMap"];
             MapRenderer = new TiledMapRenderer(Game.GraphicsDevice);
+
+            // Generate map obstacles
+            if (Map.ObjectLayers.Count != 0) {
+                foreach (TiledMapObject O in Map.ObjectLayers[0].Objects) {
+                    // Create a static body in the physics world
+                    PhysicsBody B = BodyFactory.CreateRectangle(World, ConvertUnits.ToSimUnits(O.Size.Width), ConvertUnits.ToSimUnits(O.Size.Height), 1f);
+                    Vector2 Pos = new Vector2(O.Position.X + O.Size.Width / 2f, O.Position.Y + O.Size.Height / 2f);
+                    B.Position = ConvertUnits.ToSimUnits(Pos);
+                    B.FixtureList[0].IsSensor = true;
+                }
+            }
 
             // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
             PathfindingGrid = new Grid(Map);

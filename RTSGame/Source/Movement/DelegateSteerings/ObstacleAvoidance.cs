@@ -13,10 +13,15 @@ namespace RTSGame {
         // Holds the distance to look ahead for a collision
         public float LookAhead;
 
+        // Generated Ray, can be used to draw it on screen
+        public Vector2 Ray;
+        // Holds the position where a collision took place, can be used to draw it on screen
+        public Vector2 CollisionPosition;
+
         // Creates a ObstacleAvoidance behaviour
         public ObstacleAvoidance() {
-            AvoidDistance = 300f;
-            LookAhead = 350f;
+            AvoidDistance = 250f;
+            LookAhead = 250f;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -24,16 +29,21 @@ namespace RTSGame {
             Vector2 RayVector = Unit.Body.Velocity;
             RayVector.Normalize();
             RayVector *= LookAhead;
+            RayVector += Unit.Transform.Position;
+            Ray = RayVector;
 
             // Find a collision
             bool Hit = false;
-            Vector2 CollisionPosition = Vector2.Zero;
+
             Vector2 CollisionNormal = Vector2.Zero;
 
             World.RayCast((f, p, n, fr) => {
-                Hit = true;
+                if (f.Body.UserData != null)
+                    return -1;
 
-                CollisionPosition = p;
+                Hit = true;
+                
+                CollisionPosition = ConvertUnits.ToDisplayUnits(p);
                 CollisionNormal = n;
 
                 return 0;
@@ -44,7 +54,7 @@ namespace RTSGame {
                 return new Steering();
 
             // Otherwise create a target
-            Vector2 Target = ConvertUnits.ToDisplayUnits(CollisionPosition) + CollisionNormal * AvoidDistance;
+            Vector2 Target = CollisionPosition + CollisionNormal * AvoidDistance;
 
             return GetSteering(Unit, Target);
         }
