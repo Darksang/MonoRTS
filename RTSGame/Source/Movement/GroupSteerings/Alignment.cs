@@ -14,7 +14,7 @@ namespace RTSGame {
         // Create n Alignment behaviour
         public Alignment() : base() {
             Targets = new List<Unit>();
-            Threshold = 1000f;
+            Threshold = 300f;
             Type = SteeringType.Alignment;
         }
 

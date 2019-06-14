@@ -15,7 +15,7 @@ namespace RTSGame {
         // Create a Cohesion behaviour
         public Cohesion() : base() {
             Targets = new List<Unit>();
-            Threshold = 1000f;
+            Threshold = 300f;
             Type = SteeringType.Cohesion;
         }
 

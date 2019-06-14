@@ -245,8 +245,8 @@ namespace RTSGame {
 
             // Draw Interior and Exterior radiuses
             if (DrawDebugRadiuses) {
-                Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius / 2f), 32, Color.Coral);
-                Batch.DrawCircle(new CircleF(Transform.Position, Body.ExteriorRadius / 2f), 32, Color.Aquamarine);
+                Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius), 32, Color.Coral);
+                Batch.DrawCircle(new CircleF(Transform.Position, Body.ExteriorRadius), 32, Color.Aquamarine);
             }
         }
 

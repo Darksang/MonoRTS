@@ -48,8 +48,8 @@ namespace RTSGame {
             MaxAcceleration = 200f;
             MaxAngular = 100f;
 
-            InteriorRadius = 100f;
-            ExteriorRadius = 450f;
+            InteriorRadius = 70f;
+            ExteriorRadius = 250f;
 
             InteriorAngle = 5f;
             ExteriorAngle = 15f;

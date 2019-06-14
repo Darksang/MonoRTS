@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 
@@ -15,19 +14,19 @@ namespace RTSGame {
         // Create a Separation behaviour
         public Separation() : base() {
             Targets = new List<Unit>();
-            Threshold = 300f;
+            Threshold = 150f;
             Type = SteeringType.Separation;
         }
 
         public override Steering GetSteering(Unit Unit) {
             Steering Result = new Steering();
-            //Threshold = Unit.Body.ExteriorRadius;
+            
             // Loop through each target
             foreach (Unit U in Targets) {
                 if (U == Unit)
                     continue;
                 // Check if the target is close 
-                Vector2 Direction = Unit.Transform.Position - U.Transform.Position;
+                Vector2 Direction = U.Transform.Position - Unit.Transform.Position;
                 float Distance = Direction.Length();
 
                 if (Distance < Threshold) {

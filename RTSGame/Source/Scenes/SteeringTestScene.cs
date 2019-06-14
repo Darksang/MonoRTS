@@ -111,7 +111,6 @@ namespace RTSGame {
             ArriveTarget.Transform.Position = new Vector2(600f, -200f);
             ArriveTarget.Collider.Body.Position = ConvertUnits.ToSimUnits(new Vector2(600f, -200f));
             ArriveTarget.DrawDebugRadiuses = true;
-            ArriveTarget.Body.InteriorRadius = 150f;
 
             Arrive.AddSteering(SteeringType.Arrive);
 
