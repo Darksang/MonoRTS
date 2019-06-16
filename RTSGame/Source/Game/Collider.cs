@@ -22,8 +22,8 @@ namespace RTSGame {
         // Initializes a Body in the physics World, with a Rectangle Shape
         public void Initialize(World World, Unit Unit) {
             // Scale Width and Height to simulation units
-            float Width = ConvertUnits.ToSimUnits(Unit.Sprite.SpriteTexture.Width);
-            float Height = ConvertUnits.ToSimUnits(Unit.Sprite.SpriteTexture.Height);
+            float Width = ConvertUnits.ToSimUnits(Unit.Sprite.SpriteTexture.Width * Unit.Transform.Scale.X);
+            float Height = ConvertUnits.ToSimUnits(Unit.Sprite.SpriteTexture.Height * Unit.Transform.Scale.Y);
             // Create a Body with a Rectangle fixture
             Body = BodyFactory.CreateRectangle(World, Width, Height, 1f, Unit);
             // Position the Body in the World according to Transform in sim units

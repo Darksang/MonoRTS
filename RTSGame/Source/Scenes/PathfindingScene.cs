@@ -85,7 +85,7 @@ namespace RTSGame {
             Unit.AddSteering(SteeringType.PathFollowing);
 
             Path = Pathfinder.FindPath(Unit.Transform.Position, End);
-            Unit.SetPath(Path);
+            Unit.Move(Path);
 
             Units.Add(Unit);
 
@@ -125,7 +125,7 @@ namespace RTSGame {
 
                     // Calculate path
                     Path = Pathfinder.FindPath(Unit.Transform.Position, End);
-                    Unit.SetPath(Path);
+                    Unit.Move(Path);
                 }
             }
 

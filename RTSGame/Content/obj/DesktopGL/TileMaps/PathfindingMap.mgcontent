@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/PathfindingMap.tmx</SourceFile>
   <SourceTime>2019-06-13T18:12:04.6443413+02:00</SourceTime>
   <DestFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/TileMaps/PathfindingMap.xnb</DestFile>
-  <DestTime>2019-06-13T18:45:38.724413+02:00</DestTime>
+  <DestTime>2019-06-16T19:29:59.9293061+02:00</DestTime>
   <Importer>TiledMapImporter</Importer>
   <ImporterTime>2018-05-23T11:26:24+02:00</ImporterTime>
   <Processor>TiledMapProcessor</Processor>

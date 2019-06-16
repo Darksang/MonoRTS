@@ -42,10 +42,10 @@ namespace RTSGame {
             Velocity = new Vector2(0f, 0f);
             RotationVelocity = 0f;
 
-            MaxVelocity = 150f;
+            MaxVelocity = 70f;
             MaxRotationVelocity = 90f;
 
-            MaxAcceleration = 200f;
+            MaxAcceleration = 500f;
             MaxAngular = 100f;
 
             InteriorRadius = 70f;

@@ -6,6 +6,7 @@
   <SourceFiles>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Fonts/Arial.spritefont</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Shaders/Outline.fx</File>
+    <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Assassin.png</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Cat.png</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Ghost.png</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Healer.png</File>
@@ -15,6 +16,7 @@
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/terrain_atlas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

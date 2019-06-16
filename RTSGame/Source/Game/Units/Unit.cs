@@ -27,6 +27,9 @@ namespace RTSGame {
         // Holds all movement behaviours of the Unit
         public Dictionary<SteeringType, SteeringBehaviour> Behaviours { get; private set; }
 
+        // Holds the stats for this Unit
+        public Stats Stats { get; set; }
+
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
@@ -47,6 +50,31 @@ namespace RTSGame {
             Collider.Initialize(World, this);
 
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
+
+            Stats = new Stats();
+
+            Selected = false;
+
+            DrawDebugVelocity = false;
+            DrawDebugRadiuses = false;
+
+            Flip = SpriteEffects.None;
+        }
+
+        public Unit(string Name, Sprite Sprite, World World, Vector2 Scale) {
+            this.Name = Name;
+            Transform = new Transform();
+            this.Sprite = Sprite;
+            Body = new Body();
+
+            Transform.Scale = Scale;
+
+            Collider = new Collider();
+            Collider.Initialize(World, this);
+
+            Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
+
+            Stats = new Stats();
 
             Selected = false;
 
@@ -104,6 +132,37 @@ namespace RTSGame {
             return Result;
         }
 
+        // Orders the Unit to move following the provided Path
+        public void Move(Path Path) {
+            if (Behaviours.ContainsKey(SteeringType.PathFollowing)) {
+                PathFollowing B = (PathFollowing)Behaviours[SteeringType.PathFollowing];
+                B.SetPath(Path);
+            }
+        }
+
+        // Orders the Unit to attack based on its Stats
+        public void Attack(Unit Target) {
+            // Check if we can attack
+            long CurrentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            if (CurrentTime - Stats.LastAttackTime > Stats.AttackSpeed * 1000) {
+                Random Random = new Random();
+
+                // Calculate damage to deal based on target's Defense and Unit's Attack
+                float Damage = Stats.Attack * (100f / (100f + Target.Stats.Defense));
+
+                if (Random.Next(0, 100) < Stats.CriticalChance)
+                    Damage *= 2; // Critical attacks deal double damage
+
+                // Apply the damage to the Target
+                Target.Stats.Health -= (int)Damage;
+                if (Target.Stats.Health < 0)
+                    Target.Stats.Health = 0;
+
+                Stats.LastAttackTime = CurrentTime;
+            }
+        }
+
         // Set Unit orientation based on its velocity
         public float GetNewOrientation() {
             // Make sure we have a velocity
@@ -112,14 +171,6 @@ namespace RTSGame {
                 return (float)Math.Atan2(Body.Velocity.Y, Body.Velocity.X);
 
             return Transform.Rotation;
-        }
-
-        // TODO: Is there a better way to do this? Sets a Path to follow using PathFollowing steering
-        public void SetPath(Path Path) {
-            if (Behaviours.ContainsKey(SteeringType.PathFollowing)) {
-                PathFollowing B = (PathFollowing)Behaviours[SteeringType.PathFollowing];
-                B.SetPath(Path);
-            }
         }
 
         // Adds a specific Steering if it's not already contained
@@ -234,7 +285,6 @@ namespace RTSGame {
 
             Batch.Draw(Sprite.SpriteTexture, Transform.Position, null, Sprite.SpriteColor, Transform.Rotation, 
                 new Vector2(Sprite.SpriteTexture.Width / 2f, Sprite.SpriteTexture.Height / 2f), Transform.Scale, Flip, Sprite.Layer);
-
 
             // Draw Velocity Vector
             if (DrawDebugVelocity && Body.Velocity.Length() > 0) {

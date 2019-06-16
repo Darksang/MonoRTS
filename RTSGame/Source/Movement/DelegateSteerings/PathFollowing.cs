@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
 namespace RTSGame {
-
+    
     public class PathFollowing : Seek {
 
         // Holds the Path to follow
@@ -14,7 +14,7 @@ namespace RTSGame {
         // Create a PathFollowing behaviour
         public PathFollowing() : base() {
             Path = null;
-            Radius = 8f;
+            Radius = 16f;
             Type = SteeringType.PathFollowing;
         }
 

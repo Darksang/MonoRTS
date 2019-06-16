@@ -34,10 +34,18 @@ namespace RTSGame {
 
                         if (ID == 311)
                             Walkable = true; // Grass
+                        else if (ID == 389)
+                            Walkable = true; // Sand
+                        else if (ID == 726)
+                            Walkable = true; // Base Floor
+                        else if (ID == 853 || ID == 854 || ID == 855 || ID == 885 || ID == 887 || ID == 917 || ID == 918 || ID == 919 || ID == 888 || ID == 889)
+                            Walkable = false; // Base Walls
                         else if (ID == 526 || ID == 527 || ID == 528)
                             Walkable = true; // Bridge
                         else if (ID == 6 || ID == 7 || ID == 8 || ID == 38 || ID == 39 || ID == 40 || ID == 70 || ID == 71 || ID == 72 || ID == 102 || ID == 103 || ID == 104 || ID == 134 || ID == 135 || ID == 136)
                             Walkable = false; // Mountain
+                        else if (ID == 458)
+                            Walkable = false; // Cactus
                     }
 
                     Nodes[x, y] = new Node(Walkable, new Vector2((x * TileSize / 2f) + (x + 1) * (TileSize / 2f), (y * TileSize / 2f) + (y + 1) * (TileSize / 2f)), x, y);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/MainMap.tmx</SourceFile>
-  <SourceTime>2019-06-12T20:38:49.6063556+02:00</SourceTime>
+  <SourceTime>2019-06-16T19:56:45.07579+02:00</SourceTime>
   <DestFile>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/bin/DesktopGL/Content/TileMaps/MainMap.xnb</DestFile>
-  <DestTime>2019-06-13T18:40:15.6888307+02:00</DestTime>
+  <DestTime>2019-06-16T19:56:50.5729605+02:00</DestTime>
   <Importer>TiledMapImporter</Importer>
   <ImporterTime>2018-05-23T11:26:24+02:00</ImporterTime>
   <Processor>TiledMapProcessor</Processor>

@@ -129,6 +129,7 @@ namespace RTSGame {
             Sprites.Add("Ghost", Content.Load<Texture2D>("Sprites//Ghost"));
             Sprites.Add("Cat", Content.Load<Texture2D>("Sprites//Cat"));
             Sprites.Add("Healer", Content.Load<Texture2D>("Sprites//Healer"));
+            Sprites.Add("Assassin", Content.Load<Texture2D>("Sprites//Assassin"));
 
             // Load fonts
             Fonts.Add("Arial", Content.Load<SpriteFont>("Fonts//Arial"));
