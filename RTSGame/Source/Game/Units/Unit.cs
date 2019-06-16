@@ -27,6 +27,9 @@ namespace RTSGame {
         // Holds all movement behaviours of the Unit
         public Dictionary<SteeringType, SteeringBehaviour> Behaviours { get; private set; }
 
+        // Holds the movement speed for each terrain type
+        public Dictionary<TerrainType, float> TerrainSpeed { get; private set; }
+
         // Holds the stats for this Unit
         public Stats Stats { get; set; }
 
@@ -50,6 +53,7 @@ namespace RTSGame {
             Collider.Initialize(World, this);
 
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
+            TerrainSpeed = new Dictionary<TerrainType, float>();
 
             Stats = new Stats();
 
@@ -73,6 +77,7 @@ namespace RTSGame {
             Collider.Initialize(World, this);
 
             Behaviours = new Dictionary<SteeringType, SteeringBehaviour>();
+            TerrainSpeed = new Dictionary<TerrainType, float>();
 
             Stats = new Stats();
 
@@ -161,6 +166,10 @@ namespace RTSGame {
 
                 Stats.LastAttackTime = CurrentTime;
             }
+        }
+
+        public void ChangeVelocity(TerrainType T) {
+            Body.MaxVelocity = TerrainSpeed[T];
         }
 
         // Set Unit orientation based on its velocity

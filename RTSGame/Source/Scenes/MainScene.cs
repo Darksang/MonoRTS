@@ -147,6 +147,21 @@ namespace RTSGame {
 
             ClampCamera();
 
+            // Update Unit speed depending on terrain
+            foreach (Unit U in Units) {
+                // Get the tile the Unit is standing on
+                Node N = PathfindingGrid.WorldToNode(U.Transform.Position);
+                if (N != null) {
+                    Map.TileLayers[0].TryGetTile(N.GridX, N.GridY, out TiledMapTile? Tile);
+                    if (Tile != null) {
+                        // Find out terrain type
+                        TerrainType T = (TerrainType)Tile.Value.GlobalIdentifier;
+                        if (Enum.IsDefined(typeof(TerrainType), Tile.Value.GlobalIdentifier))
+                            U.ChangeVelocity(T);
+                    }
+                }
+            }
+
             MapRenderer.Update(Map, GameTime);
 
             // Update units

@@ -10,7 +10,11 @@ namespace RTSGame {
     public class AssassinUnit : Unit {
 
         public AssassinUnit(string Name, Sprite Sprite, World World) : base(Name, Sprite, World) {
-            Body.MaxVelocity = 130f;
+            TerrainSpeed.Add(TerrainType.Grass, 110f);
+            TerrainSpeed.Add(TerrainType.Sand, 130f);
+            TerrainSpeed.Add(TerrainType.BaseFloor, 90f);
+
+            Body.MaxVelocity = 110f;
             Body.MaxAcceleration = 1000f;
 
             Stats.Health = 400;
@@ -23,7 +27,11 @@ namespace RTSGame {
         }
 
         public AssassinUnit(string Name, Sprite Sprite, World World, Vector2 Scale) : base(Name, Sprite, World, Scale) {
-            Body.MaxVelocity = 130f;
+            TerrainSpeed.Add(TerrainType.Grass, 110f);
+            TerrainSpeed.Add(TerrainType.Sand, 130f);
+            TerrainSpeed.Add(TerrainType.BaseFloor, 90f);
+
+            Body.MaxVelocity = 110f;
             Body.MaxAcceleration = 1000f;
 
             Stats.Health = 400;
