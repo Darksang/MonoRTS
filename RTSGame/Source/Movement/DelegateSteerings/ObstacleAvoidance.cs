@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+
+using Microsoft.Xna.Framework;
 
 using FarseerPhysics.Dynamics;
 
@@ -18,10 +20,12 @@ namespace RTSGame {
         // Holds the position where a collision took place, can be used to draw it on screen
         public Vector2 CollisionPosition;
 
+        public Vector2 CollisionNormal;
+
         // Creates a ObstacleAvoidance behaviour
         public ObstacleAvoidance() {
-            AvoidDistance = 250f;
-            LookAhead = 250f;
+            AvoidDistance = 150f;
+            LookAhead = 150f;
         }
 
         public override Steering GetSteering(Unit Unit) {
@@ -34,19 +38,24 @@ namespace RTSGame {
 
             // Find a collision
             bool Hit = false;
-
-            Vector2 CollisionNormal = Vector2.Zero;
+            CollisionNormal = Vector2.Zero;
+            CollisionPosition = Vector2.Zero;
 
             World.RayCast((f, p, n, fr) => {
                 if (f.Body.UserData != null)
                     return -1;
 
                 Hit = true;
-                
-                CollisionPosition = ConvertUnits.ToDisplayUnits(p);
-                CollisionNormal = n;
 
-                return 0;
+                // Point where the collision happens
+                CollisionPosition = ConvertUnits.ToDisplayUnits(p);
+
+                // Calculate the normal
+                Vector2 Normal = new Vector2((float)Math.Cos(fr), (float)Math.Sin(fr));
+                Normal *= n;
+                CollisionNormal += Normal;
+
+                return fr;
             }, ConvertUnits.ToSimUnits(Unit.Transform.Position), ConvertUnits.ToSimUnits(RayVector));
 
             // If there's no collision, do nothing
@@ -54,9 +63,9 @@ namespace RTSGame {
                 return new Steering();
 
             // Otherwise create a target
-            Vector2 Target = CollisionPosition + CollisionNormal * AvoidDistance;
+            Vector2 TargetPosition = CollisionPosition + CollisionNormal * AvoidDistance;
 
-            return GetSteering(Unit, Target);
+            return GetSteering(Unit, TargetPosition);
         }
     }
 }

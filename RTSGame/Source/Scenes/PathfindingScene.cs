@@ -103,6 +103,7 @@ namespace RTSGame {
 
             Unit2.AddSteering(SteeringType.Wander);
             Unit2.AddSteering(SteeringType.ObstacleAvoidance);
+            Unit2.SetSteeringWeight(SteeringType.ObstacleAvoidance, 100);
 
             Units.Add(Unit2);
         }
@@ -185,6 +186,9 @@ namespace RTSGame {
                 Game.SpriteBatch.DrawLine(Unit2.Transform.Position, O.Ray, Color.Black);
                 if (O.CollisionPosition != Vector2.Zero)
                     Game.SpriteBatch.DrawPoint(O.CollisionPosition, Color.Pink, 3f);
+
+                if (O.CollisionPosition != Vector2.Zero)
+                    Game.SpriteBatch.DrawLine(O.CollisionPosition, O.CollisionNormal * 50f + O.CollisionPosition, Color.Gold);
             }
 
             foreach (Unit U in Units)

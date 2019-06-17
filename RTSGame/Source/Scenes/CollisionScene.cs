@@ -47,13 +47,14 @@ namespace RTSGame {
             // Test Unit
             Sprite S = new Sprite(Game.Sprites["Cat"]);
             Unit = new Unit("Collision Avoid", S, World);
-            Unit.DrawDebugVelocity = true;
+            Unit.DrawDebugVelocity = false;
             Unit.Body.MaxVelocity = 100f;
             Unit.Transform.Position = new Vector2(-500f, 0f);
             Unit.Collider.Body.Position = ConvertUnits.ToSimUnits(Unit.Transform.Position);
 
             Unit.AddSteering(SteeringType.Wander);
             Unit.AddSteering(SteeringType.ObstacleAvoidance);
+            Unit.SetSteeringWeight(SteeringType.ObstacleAvoidance, 100);
 
             Units.Add(Unit);
         }
@@ -119,6 +120,10 @@ namespace RTSGame {
             Game.SpriteBatch.DrawLine(Unit.Transform.Position, O.Ray, Color.Black);
             if (O.CollisionPosition != Vector2.Zero)
                 Game.SpriteBatch.DrawPoint(O.CollisionPosition, Color.Pink, 3f);
+
+            /* Draw collision normal
+            if (O.CollisionPosition != Vector2.Zero)
+                Game.SpriteBatch.DrawLine(O.CollisionPosition, O.CollisionNormal * 50f + O.CollisionPosition, Color.Gold); */
 
             // Draw Units
             foreach (Unit U in Units)
