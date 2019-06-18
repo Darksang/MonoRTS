@@ -17,5 +17,7 @@
         public long LastAttackTime = 0;
 
         public long LastHealTime = 0;
+
+        public float FieldOfView;
     }
 }

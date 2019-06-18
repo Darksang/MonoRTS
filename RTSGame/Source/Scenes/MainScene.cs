@@ -28,6 +28,8 @@ namespace RTSGame {
         private Grid PathfindingGrid;
         private Pathfinding Pathfinder;
 
+        private GameManager Manager;
+
         // Unit selection
         private Unit SelectedUnit;
 
@@ -58,7 +60,7 @@ namespace RTSGame {
             // Generate map obstacles
             if (Map.ObjectLayers.Count != 0) {
                 foreach (TiledMapObject O in Map.ObjectLayers[0].Objects) {
-                    if (O.Type == "Rectangle") {
+                    if (O.Type == "Rectangle" && O.Name.Length == 0) {
                         // Create a static body in the physics world
                         PhysicsBody B = BodyFactory.CreateRectangle(World, ConvertUnits.ToSimUnits(O.Size.Width), ConvertUnits.ToSimUnits(O.Size.Height), 1f);
                         Vector2 Pos = new Vector2(O.Position.X + O.Size.Width / 2f, O.Position.Y + O.Size.Height / 2f);
@@ -71,6 +73,8 @@ namespace RTSGame {
             // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
             PathfindingGrid = new Grid(Map);
             Pathfinder = new Pathfinding(PathfindingGrid);
+
+            Manager = new GameManager();
 
             SelectedUnit = null;
             Selecting = false;
@@ -87,31 +91,39 @@ namespace RTSGame {
             Sprite Healer = new Sprite(Game.Content.Load<Texture2D>("Sprites//Healer"));
             Sprite Assassin = new Sprite(Game.Content.Load<Texture2D>("Sprites//Assassin"));
 
-            AssassinUnit U = new AssassinUnit("Unit 1", Assassin, World, new Vector2(0.55f, 0.55f));
-            U.Transform.Position = new Vector2(800f, 800f);
-            U.Collider.Body.Position = ConvertUnits.ToSimUnits(U.Transform.Position);
-            U.AddSteering(SteeringType.PathFollowing);
+            CreateAssassin("Blue Assassin", Assassin, Team.Blue, new Vector2(800f, 800f));
+            CreateMelee("Blue Melee", Cat, Team.Blue, new Vector2(600f, 800f));
+            CreateRanged("Red Ranged", Ghost, Team.Red, new Vector2(2000f, 1800f));
 
-            LeaderUnit L = new LeaderUnit("Leader", Cat, World, new Vector2(0.55f, 0.55f));
-            L.Transform.Position = new Vector2(600f, 800f);
-            L.Collider.Body.Position = ConvertUnits.ToSimUnits(L.Transform.Position);
-            L.AddSteering(SteeringType.PathFollowing);
-
-            // Generate Leaders
+            // Generate Units
             if (Map.ObjectLayers.Count != 0) {
                 foreach (TiledMapObject O in Map.ObjectLayers[0].Objects) {
-                    if (O.Type == "Point") {
-                        LeaderUnit Leader = new LeaderUnit(O.Name, Healer, World, new Vector2(0.55f, 0.55f));
-                        Leader.Transform.Position = O.Position;
-                        Leader.Collider.Body.Position = ConvertUnits.ToSimUnits(Leader.Transform.Position);
-                        Leader.AddSteering(SteeringType.PathFollowing);
-                        Units.Add(Leader);
+                    if (O.Type == "Point" && O.Name.Contains("Leader")) {
+                        if (O.Name == "Red Leader") {
+                            CreateLeader(O.Name, Healer, Team.Red, O.Position);
+                            Manager.RedTeamBase = O.Position;
+                        } else if (O.Name == "Blue Leader") {
+                            CreateLeader(O.Name, Stump, Team.Blue, O.Position);
+                            Manager.BlueTeamBase = O.Position;
+                        }
+                    } else if (O.Type == "Rectangle" && O.Name.Contains("Healing")) {
+                        if (O.Name == "Red Healing")
+                            Manager.RedHealingPoint = new RectangleF(O.Position.X, O.Position.Y, O.Size.Width, O.Size.Height);
+                        else if (O.Name == "Blue Healing")
+                            Manager.BlueHealingPoint = new RectangleF(O.Position.X, O.Position.Y, O.Size.Width, O.Size.Height);
                     }
                 }
             }
 
-            Units.Add(U);
-            Units.Add(L);
+            // Set the references to the Leader in the GameManager
+            foreach (Unit U in Units) {
+                if (U.Name == "Red Leader")
+                    Manager.RedLeader = (LeaderUnit)U;
+                else if (U.Name == "Blue Leader")
+                    Manager.BlueLeader = (LeaderUnit)U;
+            }
+
+            // TODO: Assign a reference of the GameManager to each Unit so they can access its info
         }
 
         public override void Update(GameTime GameTime) {
@@ -244,10 +256,22 @@ namespace RTSGame {
 
             Vector2 CameraWorldToMap = new Vector2(Game.Camera.Position.X * MapWidth / 2f / ScreenWidth, Game.Camera.Position.Y * MapHeight / 2f / ScreenHeight);
 
+            // Draw minimap background and frame
             Game.SpriteBatch.FillRectangle(new RectangleF(MapPosition, new Size2(MapWidth, MapHeight)), Color.Black);
-            Game.SpriteBatch.DrawRectangle(new RectangleF(MapPosition, new Size2(MapWidth, MapHeight)), Color.White);
+            Game.SpriteBatch.DrawRectangle(new RectangleF(MapPosition, new Size2(MapWidth, MapHeight)), Color.Coral, 1f);
 
-            Game.SpriteBatch.DrawRectangle(new RectangleF(CameraWorldToMap + MapPosition, new Size2(40f, 40f)), Color.Blue);
+            // Draw camera rectangle
+            Game.SpriteBatch.DrawRectangle(new RectangleF(CameraWorldToMap + MapPosition, new Size2(40f, 40f)), Color.BurlyWood);
+
+            // Draw units
+            foreach (Unit U in Units) {
+                Vector2 WorldToMap = new Vector2(U.Transform.Position.X * MapWidth / 2f / ScreenWidth, U.Transform.Position.Y * MapHeight / 2f / ScreenHeight);
+
+                if (U.Team == Team.Red)
+                    Game.SpriteBatch.DrawPoint(WorldToMap + MapPosition, Color.Red, 2f);
+                else if (U.Team == Team.Blue)
+                    Game.SpriteBatch.DrawPoint(WorldToMap + MapPosition, Color.Blue, 2f);
+            }
 
             Game.SpriteBatch.End();
 
@@ -287,6 +311,7 @@ namespace RTSGame {
         private void ClampCamera() {
             //Game.Camera.Zoom = 1f;
 
+            // TODO: When zoom it's not 1, it doesn't clip correctly
             if (Game.Camera.Position.Y < 0f)
                 Game.Camera.Position = new Vector2(Game.Camera.Position.X, 0f);
 
@@ -300,6 +325,50 @@ namespace RTSGame {
                 Game.Camera.Position = new Vector2(Map.WidthInPixels - Game.Graphics.PreferredBackBufferWidth, Game.Camera.Position.Y);
         }
 
+        private void CreateAssassin(string Name, Sprite Sprite, Team Team, Vector2 Position) {
+            AssassinUnit A = new AssassinUnit(Name, Sprite, World, new Vector2(0.55f, 0.55f));
+            A.Transform.Position = Position;
+            A.Collider.Body.Position = ConvertUnits.ToSimUnits(A.Transform.Position);
+            A.Team = Team;
+
+            A.AddSteering(SteeringType.PathFollowing);
+
+            Units.Add(A);
+        }
+
+        private void CreateLeader(string Name, Sprite Sprite, Team Team, Vector2 Position) {
+            LeaderUnit L = new LeaderUnit(Name, Sprite, World, new Vector2(0.55f, 0.55f));
+            L.Transform.Position = Position;
+            L.Collider.Body.Position = ConvertUnits.ToSimUnits(L.Transform.Position);
+            L.Team = Team;
+
+            L.AddSteering(SteeringType.PathFollowing);
+
+            Units.Add(L);
+        }
+
+        private void CreateMelee(string Name, Sprite Sprite, Team Team, Vector2 Position) {
+            MeleeUnit M = new MeleeUnit(Name, Sprite, World, new Vector2(0.55f, 0.55f));
+            M.Transform.Position = Position;
+            M.Collider.Body.Position = ConvertUnits.ToSimUnits(M.Transform.Position);
+            M.Team = Team;
+
+            M.AddSteering(SteeringType.PathFollowing);
+
+            Units.Add(M);
+        }
+
+        private void CreateRanged(string Name, Sprite Sprite, Team Team, Vector2 Position) {
+            RangedUnit R = new RangedUnit(Name, Sprite, World, new Vector2(0.55f, 0.55f));
+            R.Transform.Position = Position;
+            R.Collider.Body.Position = ConvertUnits.ToSimUnits(R.Transform.Position);
+            R.Team = Team;
+
+            R.AddSteering(SteeringType.PathFollowing);
+
+            Units.Add(R);
+        }
+
         #region ImGuiEditor
 
         private void DisplayEditor() {
@@ -307,12 +376,21 @@ namespace RTSGame {
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(210f, 200f), ImGuiCond.Always);
             ImGuiWindowFlags Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
 
-            Vector4 TextColor = Color.Lime.ToVector4();
+            Vector4 NameColor = Color.Lime.ToVector4();
+            Vector4 Blue = Color.CadetBlue.ToVector4();
+            Vector4 Red = Color.IndianRed.ToVector4();
 
             ImGui.Begin("Selected Unit", Flags);
 
             if (SelectedUnit != null) {
-                ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), SelectedUnit.Name);
+                ImGui.TextColored(new System.Numerics.Vector4(NameColor.X, NameColor.Y, NameColor.Z, NameColor.W), SelectedUnit.Name);
+                ImGui.SameLine();
+
+                if (SelectedUnit.Team == Team.Red)
+                    ImGui.TextColored(new System.Numerics.Vector4(Red.X, Red.Y, Red.Z, Red.W), "(Red Team)");
+                else if (SelectedUnit.Team == Team.Blue)
+                    ImGui.TextColored(new System.Numerics.Vector4(Blue.X, Blue.Y, Blue.Z, Blue.W), "(Blue Team)");
+
                 ImGui.Separator();
                 if (ImGui.CollapsingHeader("Stats")) {
                     ImGui.Text("Health - " + SelectedUnit.Stats.Health);
@@ -321,6 +399,7 @@ namespace RTSGame {
                     ImGui.Text("Attack Range - " + SelectedUnit.Stats.AttackRange);
                     ImGui.Text("Attack Speed - " + SelectedUnit.Stats.AttackSpeed + "s");
                     ImGui.Text("Critical Chance - " + SelectedUnit.Stats.CriticalChance + "%%");
+                    ImGui.Text("Field Of View - " + SelectedUnit.Stats.FieldOfView);
                 }
 
                 ImGui.Separator();

@@ -34,6 +34,9 @@ namespace RTSGame {
                 Transform RelativeLocation = S.Unit.Transform;
 
                 Transform TargetLocation = new Transform();
+
+                // TODO: Orientation matrix?
+                //TargetLocation.Position = RelativeLocation.Position * OrientationMatrix
             }
         }
 

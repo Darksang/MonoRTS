@@ -76,7 +76,10 @@ namespace RTSGame {
             U1.AddSteering(SteeringType.Cohesion);
             U1.AddSteering(SteeringType.Separation);
             //U1.AddSteering(SteeringType.PathFollowing);
+
             U1.SetSteeringWeight(SteeringType.Separation, 20);
+            U1.SetSteeringWeight(SteeringType.Cohesion, 10);
+            U1.SetSteeringWeight(SteeringType.Alignment, 5);
             //U1.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
             Unit U2 = new Unit("Unit 2", S, World, new Vector2(0.80f, 0.80f));
@@ -88,7 +91,10 @@ namespace RTSGame {
             U2.AddSteering(SteeringType.Cohesion);
             U2.AddSteering(SteeringType.Separation);
             //U2.AddSteering(SteeringType.PathFollowing);
+
             U2.SetSteeringWeight(SteeringType.Separation, 20);
+            U2.SetSteeringWeight(SteeringType.Cohesion, 10);
+            U2.SetSteeringWeight(SteeringType.Alignment, 5);
             //U2.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
             Unit U3 = new Unit("Unit 3", S, World, new Vector2(0.80f, 0.80f));
@@ -100,7 +106,10 @@ namespace RTSGame {
             U3.AddSteering(SteeringType.Cohesion);
             U3.AddSteering(SteeringType.Separation);
             //U3.AddSteering(SteeringType.PathFollowing);
+
             U3.SetSteeringWeight(SteeringType.Separation, 20);
+            U3.SetSteeringWeight(SteeringType.Cohesion, 10);
+            U3.SetSteeringWeight(SteeringType.Alignment, 5);
             //U3.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
             Units.Add(U1);

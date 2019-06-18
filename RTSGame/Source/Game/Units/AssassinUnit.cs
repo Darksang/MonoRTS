@@ -24,6 +24,8 @@ namespace RTSGame {
             Stats.AttackRange = 50f;
             Stats.AttackSpeed = 1f;
             Stats.CriticalChance = 40f;
+
+            Stats.FieldOfView = 300f;
         }
 
         public AssassinUnit(string Name, Sprite Sprite, World World, Vector2 Scale) : base(Name, Sprite, World, Scale) {
@@ -41,6 +43,8 @@ namespace RTSGame {
             Stats.AttackRange = 50f;
             Stats.AttackSpeed = 1f;
             Stats.CriticalChance = 40f;
+
+            Stats.FieldOfView = 300f;
         }
     }
 }

@@ -9,6 +9,8 @@ namespace RTSGame {
 
     public class LeaderUnit : Unit {
 
+        private Path PatrolPath;
+
         public LeaderUnit(string Name, Sprite Sprite, World World) : base(Name, Sprite, World) {
             TerrainSpeed.Add(TerrainType.Grass, 70f);
             TerrainSpeed.Add(TerrainType.Sand, 50f);
@@ -23,6 +25,10 @@ namespace RTSGame {
             Stats.AttackRange = 40f;
             Stats.AttackSpeed = 1.3f;
             Stats.CriticalChance = 20f;
+
+            Stats.FieldOfView = 200f;
+
+            PatrolPath = new Path();
         }
 
         public LeaderUnit(string Name, Sprite Sprite, World World, Vector2 Scale) : base(Name, Sprite, World, Scale) {
@@ -39,6 +45,10 @@ namespace RTSGame {
             Stats.AttackRange = 40f;
             Stats.AttackSpeed = 1.3f;
             Stats.CriticalChance = 20f;
+
+            Stats.FieldOfView = 200f;
+
+            PatrolPath = new Path();
         }
     }
 }

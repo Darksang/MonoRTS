@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
 using FarseerPhysics.Dynamics;
+using FarseerPhysics.Collision;
 
 namespace RTSGame {
 
@@ -33,12 +34,16 @@ namespace RTSGame {
         // Holds the stats for this Unit
         public Stats Stats { get; set; }
 
+        // Which team is this Unit
+        public Team Team { get; set; }
+
         // Whether this Unit is selected or not
         public bool Selected { get; set; }
 
         // Draw debug flags
         public bool DrawDebugVelocity { get; set; }
         public bool DrawDebugRadiuses { get; set; }
+        public bool DrawFieldOfView { get; set; }
 
         // Used to control where the Sprite is facing
         private SpriteEffects Flip;
@@ -61,6 +66,7 @@ namespace RTSGame {
 
             DrawDebugVelocity = false;
             DrawDebugRadiuses = false;
+            DrawFieldOfView = false;
 
             Flip = SpriteEffects.None;
         }
@@ -85,6 +91,7 @@ namespace RTSGame {
 
             DrawDebugVelocity = false;
             DrawDebugRadiuses = false;
+            DrawFieldOfView = false;
 
             Flip = SpriteEffects.None;
         }
@@ -337,11 +344,33 @@ namespace RTSGame {
                 Batch.DrawCircle(new CircleF(Transform.Position, Body.InteriorRadius), 32, Color.Coral);
                 Batch.DrawCircle(new CircleF(Transform.Position, Body.ExteriorRadius), 32, Color.Aquamarine);
             }
+
+            if (DrawFieldOfView) {
+                Vector2 P = new Vector2(Transform.Position.X - Stats.FieldOfView / 2f, Transform.Position.Y - Stats.FieldOfView / 2f);
+                Batch.DrawRectangle(new RectangleF(P, new Size2(Stats.FieldOfView, Stats.FieldOfView)), Color.Blue, 2f);
+            }
         }
 
         public void DestroyUnit(World World) {
             // Removes Body from World
             World.RemoveBody(Collider.Body);
+        }
+
+        private List<Unit> FindEnemiesAround() {
+            List<Unit> Enemies = new List<Unit>();
+
+            // Perform a AABB test to find enemies around
+            AABB TestArea = new AABB(ConvertUnits.ToSimUnits(Transform.Position), ConvertUnits.ToSimUnits(Stats.FieldOfView), ConvertUnits.ToSimUnits(Stats.FieldOfView));
+            List<Fixture> Collisions = Collider.World.QueryAABB(ref TestArea);
+
+            foreach (Fixture F in Collisions) {
+                Unit U = (Unit)F.Body.UserData;
+
+                if (U != this && U.Team != Team)
+                    Enemies.Add(U);
+            }
+
+            return Enemies;
         }
     }
 }

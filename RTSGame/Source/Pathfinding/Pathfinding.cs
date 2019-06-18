@@ -65,6 +65,7 @@ namespace RTSGame {
                     float CostToNeighbour = CurrentNode.G + ManhattanDistance(CurrentNode.WorldPosition, Neighbour.WorldPosition);
 
                     if (CostToNeighbour < Neighbour.G || !OpenNodes.Contains(Neighbour)) {
+                        // TODO: Add G cost?
                         Neighbour.G = CostToNeighbour;
                         Neighbour.H = ManhattanDistance(Neighbour.WorldPosition, EndNode.WorldPosition);
                         Neighbour.Parent = CurrentNode;

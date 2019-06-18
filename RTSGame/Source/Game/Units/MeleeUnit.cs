@@ -23,6 +23,8 @@ namespace RTSGame {
             Stats.AttackRange = 40f;
             Stats.AttackSpeed = 1.1f;
             Stats.CriticalChance = 15f;
+
+            Stats.FieldOfView = 250f;
         }
 
         public MeleeUnit(string Name, Sprite Sprite, World World, Vector2 Scale) : base(Name, Sprite, World, Scale) {
@@ -39,6 +41,8 @@ namespace RTSGame {
             Stats.AttackRange = 40f;
             Stats.AttackSpeed = 1.1f;
             Stats.CriticalChance = 15f;
+
+            Stats.FieldOfView = 250f;
         }
     }
 }

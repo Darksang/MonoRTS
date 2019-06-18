@@ -58,7 +58,9 @@
     <Compile Include="Source\AI\State.cs" />
     <Compile Include="Source\AI\StateMachine.cs" />
     <Compile Include="Source\AI\States\IdleState.cs" />
+    <Compile Include="Source\Game\GameManager.cs" />
     <Compile Include="Source\Game\Stats.cs" />
+    <Compile Include="Source\Game\Team.cs" />
     <Compile Include="Source\Game\TerrainType.cs" />
     <Compile Include="Source\Game\Units\AssassinUnit.cs" />
     <Compile Include="Source\Game\Units\LeaderUnit.cs" />

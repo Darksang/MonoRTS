@@ -23,6 +23,8 @@ namespace RTSGame {
             Stats.AttackRange = 200f;
             Stats.AttackSpeed = 1.5f;
             Stats.CriticalChance = 25f;
+
+            Stats.FieldOfView = 500f;
         }
 
         public RangedUnit(string Name, Sprite Sprite, World World, Vector2 Scale) : base(Name, Sprite, World, Scale) {
@@ -39,6 +41,8 @@ namespace RTSGame {
             Stats.AttackRange = 200f;
             Stats.AttackSpeed = 1.5f;
             Stats.CriticalChance = 25f;
+
+            Stats.FieldOfView = 500f;
         }
     }
 }
