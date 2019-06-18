@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 using MonoGame.Extended;
+using MonoGame.Extended.Tiled;
+using MonoGame.Extended.Tiled.Graphics;
 
 using FarseerPhysics.Dynamics;
 using FarseerPhysics.Collision;
@@ -15,6 +17,15 @@ using ImGuiNET;
 namespace RTSGame {
 
     public class GroupsScene : Scene {
+        // Tilemap of the scene
+        private TiledMap Map;
+        // Tilemap renderer
+        private TiledMapRenderer MapRenderer;
+
+        // Pathfinding
+        private Grid PathfindingGrid;
+        private Pathfinding Pathfinder;
+
         // Selected group of Units
         private List<Unit> SelectedUnits;
 
@@ -37,8 +48,16 @@ namespace RTSGame {
             Units = new List<Unit>();
 
             // Reset camera
-            Game.Camera.Position = new Vector2(-Game.Graphics.PreferredBackBufferWidth / 2f, -Game.Graphics.PreferredBackBufferHeight / 2f);
-            Game.Camera.Zoom = 1f;
+            Game.Camera.Position = new Vector2(-300f, -150f);
+            Game.Camera.Zoom = 1.5f;
+
+            // Load map and its renderer
+            Map = Game.Maps["GroupsMap"];
+            MapRenderer = new TiledMapRenderer(Game.GraphicsDevice);
+
+            // Create the pathfinding grid based on the tilemap Height, Width and TileHeight
+            PathfindingGrid = new Grid(Map);
+            Pathfinder = new Pathfinding(PathfindingGrid);
 
             SelectedUnits = new List<Unit>();
             Selecting = false;
@@ -46,47 +65,47 @@ namespace RTSGame {
             FormationPattern = new DefensiveCirclePattern(50f);
             FormationManager = new FormationManager(FormationPattern);
 
-            /* Unit 1
-            Sprite S = new Sprite(Game.Sprites["Ghost"]);
-            Unit U1 = new Unit("Unit 1", S, World);
-            U1.Transform.Position = new Vector2(0f, 0f);
+            // Unit 1
+            Sprite S = new Sprite(Game.Sprites["Cat"]);
+            Unit U1 = new Unit("Unit 1", S, World, new Vector2(0.80f, 0.80f));
+            U1.Transform.Position = new Vector2(150f, 150f);
             U1.Collider.Body.Position = ConvertUnits.ToSimUnits(U1.Transform.Position);
             U1.DrawDebugVelocity = true;
 
             U1.AddSteering(SteeringType.Alignment);
             U1.AddSteering(SteeringType.Cohesion);
             U1.AddSteering(SteeringType.Separation);
-            U1.AddSteering(SteeringType.MoveToPosition);
-            U1.SetSteeringWeight(SteeringType.Separation, 4);
-            //U1.AddSteering(SteeringType.Wander);
+            //U1.AddSteering(SteeringType.PathFollowing);
+            U1.SetSteeringWeight(SteeringType.Separation, 20);
+            //U1.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
-            Unit U2 = new Unit("Unit 2", S, World);
-            U2.Transform.Position = new Vector2(120f, 120f);
+            Unit U2 = new Unit("Unit 2", S, World, new Vector2(0.80f, 0.80f));
+            U2.Transform.Position = new Vector2(220f, 220f);
             U2.Collider.Body.Position = ConvertUnits.ToSimUnits(U2.Transform.Position);
             U2.DrawDebugVelocity = true;
 
             U2.AddSteering(SteeringType.Alignment);
             U2.AddSteering(SteeringType.Cohesion);
             U2.AddSteering(SteeringType.Separation);
-            U2.AddSteering(SteeringType.MoveToPosition);
-            U2.SetSteeringWeight(SteeringType.Separation, 4);
-            //U2.AddSteering(SteeringType.Wander);
+            //U2.AddSteering(SteeringType.PathFollowing);
+            U2.SetSteeringWeight(SteeringType.Separation, 20);
+            //U2.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
-            Unit U3 = new Unit("Unit 3", S, World);
-            U3.Transform.Position = new Vector2(-120f, -50f);
+            Unit U3 = new Unit("Unit 3", S, World, new Vector2(0.80f, 0.80f));
+            U3.Transform.Position = new Vector2(280f, 170f);
             U3.Collider.Body.Position = ConvertUnits.ToSimUnits(U3.Transform.Position);
             U3.DrawDebugVelocity = true;
 
             U3.AddSteering(SteeringType.Alignment);
             U3.AddSteering(SteeringType.Cohesion);
             U3.AddSteering(SteeringType.Separation);
-            U3.AddSteering(SteeringType.MoveToPosition);
-            U3.SetSteeringWeight(SteeringType.Separation, 4);
-            //U3.AddSteering(SteeringType.Wander);
+            //U3.AddSteering(SteeringType.PathFollowing);
+            U3.SetSteeringWeight(SteeringType.Separation, 20);
+            //U3.SetSteeringWeight(SteeringType.PathFollowing, 10);
 
             Units.Add(U1);
             Units.Add(U2);
-            Units.Add(U3); */
+            Units.Add(U3);
         }
 
         public override void Update(GameTime GameTime) {
@@ -95,32 +114,44 @@ namespace RTSGame {
             // Process input
             AreaSelection();
 
-            /*if (!ImGui.GetIO().WantCaptureKeyboard) {
-                if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyDown(Keys.F)) {
+            if (!ImGui.GetIO().WantCaptureKeyboard) {
+                // Flocking
+                if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyUp(Keys.F)) {
+                    foreach (Unit U in SelectedUnits) {
+                        List<Unit> Targets = new List<Unit>();
+
+                        foreach (Unit Target in SelectedUnits)
+                            if (U != Target)
+                                Targets.Add(Target);
+
+                        U.SetGroupTarget(Targets);
+                    }
+                }
+
+                // Formation pattern
+                if (Game.KeyboardState.IsKeyDown(Keys.Q) && Game.PreviousKeyboardState.IsKeyDown(Keys.Q)) {
                     if (SelectedUnits.Count > 0)
                         foreach (Unit U in SelectedUnits)
                             FormationManager.AddUnit(U);
                 }
-            } */
+            }
 
-            /* Move selected units with right click
+            // Move selected units with right click
             if (!ImGui.GetIO().WantCaptureMouse) {
                 if (Game.MouseState.RightButton == ButtonState.Pressed && Game.PreviousMouseState.RightButton == ButtonState.Released) {
-                    Vector2 WorldPosition = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
+                    Vector2 MouseWorldCoords = Game.Camera.ScreenToWorld(new Vector2(Game.MouseState.X, Game.MouseState.Y));
                     if (SelectedUnits.Count > 0) {
-                        foreach (Unit U in SelectedUnits) {
-                            U.MoveToPosition(WorldPosition);
-                        }
+                        foreach (Unit U in SelectedUnits)
+                            U.ClearPath();
+
+                        // Calculate path
+                        Path TargetPath = Pathfinder.FindPath(SelectedUnits[0].Transform.Position, MouseWorldCoords);
+                        SelectedUnits[0].Move(TargetPath);
                     }
                 }
-            } */
+            }
 
-            /* TODO: How to make a group flock and stop flocking?
-            if (Game.KeyboardState.IsKeyDown(Keys.F) && Game.PreviousKeyboardState.IsKeyUp(Keys.F)) {
-                foreach (Unit U in SelectedUnits) {
-                    U.SetGroupTarget(SelectedUnits);
-                }
-            } */
+            MapRenderer.Update(Map, GameTime);
 
             // Update units
             foreach (Unit U in Units)
@@ -135,6 +166,9 @@ namespace RTSGame {
 
             // Batch -> Normal sprites without effects
             Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: CameraMatrix);
+            
+            // Draw Map
+            MapRenderer.Draw(Map, CameraMatrix);
 
             foreach (Unit U in Units)
                 if (!U.Selected)
@@ -160,12 +194,14 @@ namespace RTSGame {
 
             // Draw selection rectangle
             if (Selecting) {
-                Game.SpriteBatch.Begin();
+                Game.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
                 Size2 RectSize = new Size2(Math.Abs(Game.MouseState.X - SelectionStart.X), Math.Abs(Game.MouseState.Y - SelectionStart.Y));
                 Point2 Origin = new Point2(Math.Min(SelectionStart.X, Game.MouseState.X), Math.Min(SelectionStart.Y, Game.MouseState.Y));
                 Game.SpriteBatch.DrawRectangle(new RectangleF(Origin, RectSize), Color.Green);
                 Game.SpriteBatch.End();
             }
+
+            DisplayEditor();
         }
 
         public override void Destroy() {
@@ -230,5 +266,36 @@ namespace RTSGame {
                 Selecting = false;
             }
         }
+
+        #region ImGuiEditor
+
+        private void DisplayEditor() {
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0f, 200f), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(230f, 200f), ImGuiCond.Always);
+            ImGuiWindowFlags Flags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse;
+
+            Vector4 TextColor = Color.Lime.ToVector4();
+            Vector4 TextColor2 = Color.Coral.ToVector4();
+
+            ImGui.Begin("Groups", Flags);
+
+            ImGui.Text("With a group of Units selected,");
+            ImGui.Text("press"); ImGui.SameLine();
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), "F key");
+            ImGui.SameLine(); ImGui.Text("to make them flock.");
+
+            ImGui.Separator();
+
+            ImGui.Text("With a group of Units selected,");
+            ImGui.Text("press"); ImGui.SameLine();
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor.X, TextColor.Y, TextColor.Z, TextColor.W), "Q key");
+            ImGui.SameLine(); ImGui.Text("to make a"); ImGui.SameLine();
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor2.X, TextColor2.Y, TextColor2.Z, TextColor2.W), "circle");
+            ImGui.TextColored(new System.Numerics.Vector4(TextColor2.X, TextColor2.Y, TextColor2.Z, TextColor2.W), "pattern.");
+
+            ImGui.End();
+        }
+
+        #endregion
     }
 }

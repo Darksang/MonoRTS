@@ -20,6 +20,8 @@ namespace RTSGame {
         private Vector2 StartRay;
         private Vector2 EndRay;
 
+        private Vector2 LastCollisionPosition;
+
         // Test Unit
         private Unit Unit;
 
@@ -38,6 +40,8 @@ namespace RTSGame {
             Game.Camera.Zoom = 1f;
 
             StartRay = new Vector2(-200f, -200f);
+
+            LastCollisionPosition = Vector2.Zero;
 
             // Test Obstacle
             PhysicsBody Obstacle = BodyFactory.CreateRectangle(World, ConvertUnits.ToSimUnits(200f), ConvertUnits.ToSimUnits(200f), 1f);
@@ -119,7 +123,9 @@ namespace RTSGame {
             ObstacleAvoidance O = (ObstacleAvoidance)Unit.Behaviours[SteeringType.ObstacleAvoidance];
             Game.SpriteBatch.DrawLine(Unit.Transform.Position, O.Ray, Color.Black);
             if (O.CollisionPosition != Vector2.Zero)
-                Game.SpriteBatch.DrawPoint(O.CollisionPosition, Color.Pink, 3f);
+                LastCollisionPosition = O.CollisionPosition;
+
+            Game.SpriteBatch.DrawPoint(LastCollisionPosition, Color.Pink, 3f);
 
             /* Draw collision normal
             if (O.CollisionPosition != Vector2.Zero)

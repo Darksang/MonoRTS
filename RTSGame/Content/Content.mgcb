@@ -87,6 +87,11 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Stump.png
 
+#begin TileMaps/GroupsMap.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:TileMaps/GroupsMap.tmx
+
 #begin TileMaps/MainMap.tmx
 /importer:TiledMapImporter
 /processor:TiledMapProcessor

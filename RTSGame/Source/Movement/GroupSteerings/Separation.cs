@@ -14,7 +14,7 @@ namespace RTSGame {
         // Create a Separation behaviour
         public Separation() : base() {
             Targets = new List<Unit>();
-            Threshold = 150f;
+            Threshold = 120f;
             Type = SteeringType.Separation;
         }
 
@@ -23,10 +23,8 @@ namespace RTSGame {
             
             // Loop through each target
             foreach (Unit U in Targets) {
-                if (U == Unit)
-                    continue;
                 // Check if the target is close 
-                Vector2 Direction = U.Transform.Position - Unit.Transform.Position;
+                Vector2 Direction = Unit.Transform.Position - U.Transform.Position;
                 float Distance = Direction.Length();
 
                 if (Distance < Threshold) {

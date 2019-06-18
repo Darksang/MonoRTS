@@ -137,6 +137,7 @@ namespace RTSGame {
             // Load tilemaps
             Maps.Add("PathfindingMap", Content.Load<TiledMap>("TileMaps//PathfindingMap"));
             Maps.Add("MainMap", Content.Load<TiledMap>("TileMaps//MainMap"));
+            Maps.Add("GroupsMap", Content.Load<TiledMap>("TileMaps//GroupsMap"));
         }
 
         // Called once per game, is the place to unload game-specific content (non ContentManager)

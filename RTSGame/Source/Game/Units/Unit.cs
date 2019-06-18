@@ -145,6 +145,14 @@ namespace RTSGame {
             }
         }
 
+        // Clears the last Path
+        public void ClearPath() {
+            if (Behaviours.ContainsKey(SteeringType.PathFollowing)) {
+                PathFollowing B = (PathFollowing)Behaviours[SteeringType.PathFollowing];
+                B.SetPath(null);
+            }
+        }
+
         // Orders the Unit to attack based on its Stats
         public void Attack(Unit Target) {
             // Check if we can attack
@@ -263,26 +271,48 @@ namespace RTSGame {
                 Behaviours.Remove(Type);
         }
 
+        public void SetSteeringWeight(SteeringType Type, int Weight) {
+            if (Behaviours.ContainsKey(Type))
+                Behaviours[Type].Weight = Weight;
+        }
+
         public void SetSteeringTarget(SteeringType Type, Unit Target) {
             if (Behaviours.ContainsKey(Type))
                 Behaviours[Type].SetTarget(Target);
         }
 
-        // TODO: This doesn't work well
         public void SetGroupTarget(List<Unit> Targets) {
-            Alignment Alignment = (Alignment)Behaviours[SteeringType.Alignment];
-            Alignment.Targets = Targets;
+            if (Behaviours.ContainsKey(SteeringType.Alignment)) {
+                Alignment Alignment = (Alignment)Behaviours[SteeringType.Alignment];
+                Alignment.Targets = Targets;
+            }
 
-            Cohesion Cohesion = (Cohesion)Behaviours[SteeringType.Cohesion];
-            Cohesion.Targets = Targets;
+            if (Behaviours.ContainsKey(SteeringType.Cohesion)) {
+                Cohesion Cohesion = (Cohesion)Behaviours[SteeringType.Cohesion];
+                Cohesion.Targets = Targets;
+            }
 
-            Separation Separation = (Separation)Behaviours[SteeringType.Separation];
-            Separation.Targets = Targets;
+            if (Behaviours.ContainsKey(SteeringType.Separation)) {
+                Separation Separation = (Separation)Behaviours[SteeringType.Separation];
+                Separation.Targets = Targets;
+            }
         }
 
-        public void SetSteeringWeight(SteeringType Type, int Weight) {
-            if (Behaviours.ContainsKey(Type))
-                Behaviours[Type].Weight = Weight;
+        public void ClearGroupTarget() {
+            if (Behaviours.ContainsKey(SteeringType.Alignment)) {
+                Alignment Alignment = (Alignment)Behaviours[SteeringType.Alignment];
+                Alignment.Targets.Clear();
+            }
+
+            if (Behaviours.ContainsKey(SteeringType.Cohesion)) {
+                Cohesion Cohesion = (Cohesion)Behaviours[SteeringType.Cohesion];
+                Cohesion.Targets.Clear();
+            }
+
+            if (Behaviours.ContainsKey(SteeringType.Separation)) {
+                Separation Separation = (Separation)Behaviours[SteeringType.Separation];
+                Separation.Targets.Clear();
+            }
         }
 
         public void Draw(SpriteBatch Batch) {

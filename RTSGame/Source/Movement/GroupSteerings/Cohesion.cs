@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 
@@ -15,7 +14,7 @@ namespace RTSGame {
         // Create a Cohesion behaviour
         public Cohesion() : base() {
             Targets = new List<Unit>();
-            Threshold = 300f;
+            Threshold = 120f;
             Type = SteeringType.Cohesion;
         }
 
@@ -25,8 +24,6 @@ namespace RTSGame {
 
             // Loop through each target
             foreach (Unit U in Targets) {
-                if (U == Unit)
-                    continue;
                 // Check if the target is close
                 Vector2 Direction = U.Transform.Position - Unit.Transform.Position;
                 float Distance = Direction.Length();

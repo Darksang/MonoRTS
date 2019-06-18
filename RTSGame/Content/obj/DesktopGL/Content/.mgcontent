@@ -11,11 +11,13 @@
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Ghost.png</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Healer.png</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/Sprites/Stump.png</File>
+    <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/GroupsMap.tmx</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/MainMap.tmx</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/PathfindingMap.tmx</File>
     <File>C:/Users/sergi/Documents/RTSGame/RTSGame/Content/TileMaps/terrain_atlas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

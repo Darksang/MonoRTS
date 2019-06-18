@@ -233,7 +233,7 @@ namespace RTSGame {
             Game.SpriteBatch.End();
 
             // TODO: Draw Minimap
-            Game.SpriteBatch.Begin();
+            Game.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             float MapWidth = 150f;
             float MapHeight = 150f;
